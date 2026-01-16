@@ -9,10 +9,12 @@ def static buildTime() {
 
 def static buildVersionCode() {
     // 基于时间戳生成 versionCode
-    // 格式: yyMMddHHmm (例如: 2401011200) - 使用2位年份以适配int范围
+    // 使用从2020-01-01 00:00:00开始的分钟数，确保在int范围内
     // 这样可以确保每次构建都有不同的 versionCode，且可以正确比较版本
-    def time = new Date().format("yyMMddHHmm", TimeZone.getTimeZone("GMT+08:00"))
-    return Integer.parseInt(time)
+    def baseDate = new Date(2020 - 1900, 0, 1, 0, 0, 0) // 2020-01-01 00:00:00
+    def now = new Date()
+    def minutes = (now.getTime() - baseDate.getTime()) / (1000 * 60)
+    return (int) minutes
 }
 
 android {
