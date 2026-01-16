@@ -14,11 +14,20 @@
         android:gravity="center"
         android:text="版本信息"
         android:textColor="@color/color_FFFFFF"
-        android:textSize="@dimen/ts_26"
+        android:textSize="@dimen/ts_28"
         android:textStyle="bold"
-        android:paddingBottom="@dimen/vs_20"
+        android:paddingTop="@dimen/vs_10"
+        android:paddingBottom="@dimen/vs_15"
         android:clickable="true"
-        android:focusable="true" />
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground"
+        android:minHeight="@dimen/vs_80" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/color_FFFFFF_20"
+        android:layout_marginBottom="@dimen/vs_15" />
 
     <TextView
         android:layout_width="@dimen/vs_600"

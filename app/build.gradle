@@ -7,13 +7,21 @@ def static buildTime() {
     return new Date().format("yyyyMMdd_HHmm", TimeZone.getTimeZone("GMT+08:00"))
 }
 
+def static buildVersionCode() {
+    // 基于时间戳生成 versionCode
+    // 格式: yyyyMMddHHmm (例如: 202401011200)
+    // 这样可以确保每次构建都有不同的 versionCode，且可以正确比较版本
+    def time = new Date().format("yyyyMMddHHmm", TimeZone.getTimeZone("GMT+08:00"))
+    return Integer.parseInt(time)
+}
+
 android {
     compileSdk 34
 
     defaultConfig {
         applicationId 'com.github.tvbox.osc.tk'
         targetSdkVersion 28
-        versionCode 1
+        versionCode buildVersionCode()
         versionName "1.0.".concat(buildTime())
         multiDexEnabled true
         //设置room的Schema的位置

@@ -65,7 +65,11 @@ public class UpdateDialog extends BaseDialog {
     public void setDescription(String description) {
         this.description = description;
         if (descText != null) {
-            descText.setText(description);
+            if (description != null && !description.isEmpty()) {
+                descText.setText("更新内容：\n" + description);
+            } else {
+                descText.setText("更新内容：\n暂无更新说明");
+            }
         }
     }
     
