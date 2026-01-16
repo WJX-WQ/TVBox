@@ -4,7 +4,7 @@
     package="com.github.tvbox.osc">
     
     <!-- 这些库要求 API 21+，使用 overrideLibrary 强制使用 -->
-    <uses-sdk tools:overrideLibrary="io.github.anilbeesetti.nextlib.media3ext,com.whl.quickjs.android" />
+    <uses-sdk tools:overrideLibrary="io.github.anilbeesetti.nextlib.media3ext,com.whl.quickjs.android,com.undcover.freedom.pyramid" />
 
     <uses-feature
         android:name="android.hardware.touchscreen"
