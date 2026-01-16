@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.github.tvbox.osc">
+    
+    <!-- 这些库要求 API 21+，使用 overrideLibrary 强制使用 -->
+    <uses-sdk tools:overrideLibrary="io.github.anilbeesetti.nextlib.media3ext,com.whl.quickjs.android" />
 
     <uses-feature
         android:name="android.hardware.touchscreen"
