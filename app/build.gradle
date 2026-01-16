@@ -9,9 +9,9 @@ def static buildTime() {
 
 def static buildVersionCode() {
     // 基于时间戳生成 versionCode
-    // 格式: yyyyMMddHHmm (例如: 202401011200)
+    // 格式: yyMMddHHmm (例如: 2401011200) - 使用2位年份以适配int范围
     // 这样可以确保每次构建都有不同的 versionCode，且可以正确比较版本
-    def time = new Date().format("yyyyMMddHHmm", TimeZone.getTimeZone("GMT+08:00"))
+    def time = new Date().format("yyMMddHHmm", TimeZone.getTimeZone("GMT+08:00"))
     return Integer.parseInt(time)
 }
 
