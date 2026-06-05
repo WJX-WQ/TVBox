@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 
 import com.github.tvbox.osc.R;
 
-import org.jetbrains.annotations.NotNull;
 
 /**
  * 更新对话框
@@ -29,7 +28,7 @@ public class UpdateDialog extends BaseDialog {
     private boolean downloading = false;
     private OnConfirmListener onConfirmListener;
     
-    public UpdateDialog(@NonNull @NotNull Activity activity) {
+    public UpdateDialog(@NonNull Activity activity) {
         super(activity);
         setContentView(R.layout.dialog_update);
         initViews();

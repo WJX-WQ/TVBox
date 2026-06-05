@@ -8,7 +8,8 @@ import android.util.Log;
 import com.github.tvbox.osc.base.App;
 import com.github.tvbox.osc.util.FileUtils;
 import com.github.tvbox.osc.util.MD5;
-import com.lzy.okgo.OkGo;
+import com.github.catvod.net.OkHttp;
+import okhttp3.Response;
 
 import org.json.JSONObject;
 
@@ -127,7 +128,7 @@ public class JarLoader {
             }
         }
         try {
-            Response response = OkGo.<File>get(jar).execute();
+            Response response = OkHttp.newCall(jar).execute();
             assert response.body() != null;
             InputStream is = response.body().byteStream();
             OutputStream os = new FileOutputStream(cache);

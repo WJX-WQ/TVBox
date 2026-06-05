@@ -6,7 +6,6 @@ import androidx.annotation.Nullable;
 
 import com.github.tvbox.osc.util.urlhttp.internal.BrotliSource;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 

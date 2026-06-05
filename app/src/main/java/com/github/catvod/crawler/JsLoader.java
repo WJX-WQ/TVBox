@@ -10,7 +10,7 @@ import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.util.MD5;
 
 import com.github.tvbox.osc.util.js.JsSpider;
-import com.lzy.okgo.OkGo;
+import com.github.catvod.net.OkHttp;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -98,7 +98,7 @@ public class JsLoader {
             }
         }
         try {
-            Response response = OkGo.<File>get(jar).execute();
+            Response response = OkHttp.newCall(jar).execute();
             InputStream is = response.body().byteStream();
             OutputStream os = new FileOutputStream(cache);
             try {

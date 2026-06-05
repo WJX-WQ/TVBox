@@ -7,7 +7,7 @@ import com.github.tvbox.osc.bean.Danmu;
 import com.github.tvbox.osc.util.ColorHelper;
 import com.github.tvbox.osc.util.FileUtils;
 import com.github.tvbox.osc.util.HawkUtils;
-import com.lzy.okgo.OkGo;
+import com.github.catvod.net.OkHttp;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,7 +39,7 @@ public class Parser extends BaseDanmakuParser {
         if (path.startsWith("file")) return FileUtils.read(path);
         if (path.startsWith("http")) {
             try {
-                return OkGo.<String>get(path).execute().body().string();
+                return OkHttp.string(path);
             } catch (Throwable ignored) {
             }
         }

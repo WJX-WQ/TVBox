@@ -9,11 +9,10 @@ import androidx.annotation.NonNull;
 
 import com.github.tvbox.osc.R;
 
-import org.jetbrains.annotations.NotNull;
 
 public class TipDialog extends BaseDialog {
 
-    public TipDialog(@NonNull @NotNull Context context, String tip, String left, String right, OnListener listener) {
+    public TipDialog(@NonNull Context context, String tip, String left, String right, OnListener listener) {
         super(context);
         setContentView(R.layout.dialog_tip);
         setCanceledOnTouchOutside(false);

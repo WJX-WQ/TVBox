@@ -14,7 +14,6 @@ import com.github.tvbox.osc.util.HawkUtils;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 
 import org.greenrobot.eventbus.EventBus;
-import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ public class DanmuSettingDialog extends BaseDialog {
 
     private DanmakuView danmakuView;
 
-    public DanmuSettingDialog(@NonNull @NotNull Context context, DanmakuView danmakuView) {
+    public DanmuSettingDialog(@NonNull Context context, DanmakuView danmakuView) {
         super(context);
         setContentView(R.layout.dialog_danmu_setting);
 
@@ -63,11 +62,11 @@ public class DanmuSettingDialog extends BaseDialog {
             }
         }, new DiffUtil.ItemCallback<Boolean>() {
             @Override
-            public boolean areItemsTheSame(@NonNull @NotNull Boolean oldItem, @NonNull @NotNull Boolean newItem) {
+            public boolean areItemsTheSame(@NonNull Boolean oldItem, @NonNull Boolean newItem) {
                 return oldItem.booleanValue() == newItem.booleanValue();
             }
             @Override
-            public boolean areContentsTheSame(@NonNull @NotNull Boolean oldItem, @NonNull @NotNull Boolean newItem) {
+            public boolean areContentsTheSame(@NonNull Boolean oldItem, @NonNull Boolean newItem) {
                 return oldItem.booleanValue() == newItem.booleanValue();
             }
         }, players, defaultPos);
@@ -91,11 +90,11 @@ public class DanmuSettingDialog extends BaseDialog {
             }
         }, new DiffUtil.ItemCallback<Boolean>() {
             @Override
-            public boolean areItemsTheSame(@NonNull @NotNull Boolean oldItem, @NonNull @NotNull Boolean newItem) {
+            public boolean areItemsTheSame(@NonNull Boolean oldItem, @NonNull Boolean newItem) {
                 return oldItem.booleanValue() == newItem.booleanValue();
             }
             @Override
-            public boolean areContentsTheSame(@NonNull @NotNull Boolean oldItem, @NonNull @NotNull Boolean newItem) {
+            public boolean areContentsTheSame(@NonNull Boolean oldItem, @NonNull Boolean newItem) {
                 return oldItem.booleanValue() == newItem.booleanValue();
             }
         }, colors, defaultPos);
@@ -116,11 +115,11 @@ public class DanmuSettingDialog extends BaseDialog {
             }
         }, new DiffUtil.ItemCallback<Float>() {
             @Override
-            public boolean areItemsTheSame(@NonNull @NotNull Float oldItem, @NonNull @NotNull Float newItem) {
+            public boolean areItemsTheSame(@NonNull Float oldItem, @NonNull Float newItem) {
                 return oldItem.floatValue() == newItem.floatValue();
             }
             @Override
-            public boolean areContentsTheSame(@NonNull @NotNull Float oldItem, @NonNull @NotNull Float newItem) {
+            public boolean areContentsTheSame(@NonNull Float oldItem, @NonNull Float newItem) {
                 return oldItem.floatValue() == newItem.floatValue();
             }
         }, speeds, defaultPos);

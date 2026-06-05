@@ -61,9 +61,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.AbsCallback;
-import com.lzy.okgo.model.Response;
+import com.github.catvod.net.OkHttp;
+import com.github.tvbox.osc.base.App;
 import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7GridLayoutManager;
@@ -73,7 +72,6 @@ import com.yang.flowlayoutlibrary.FlowLayout;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -488,12 +486,12 @@ public class SearchActivity extends BaseActivity {
                         }
                     }, new DiffUtil.ItemCallback<SourceBean>() {
                         @Override
-                        public boolean areItemsTheSame(@NonNull @NotNull SourceBean oldItem, @NonNull @NotNull SourceBean newItem) {
+                        public boolean areItemsTheSame(@NonNull SourceBean oldItem, @NonNull SourceBean newItem) {
                             return oldItem == newItem;
                         }
 
                         @Override
-                        public boolean areContentsTheSame(@NonNull @NotNull SourceBean oldItem, @NonNull @NotNull SourceBean newItem) {
+                        public boolean areContentsTheSame(@NonNull SourceBean oldItem, @NonNull SourceBean newItem) {
                             return oldItem.getKey().equals(newItem.getKey());
                         }
                     }, siteKey, i);
@@ -567,45 +565,37 @@ public class SearchActivity extends BaseActivity {
      * 拼音联想
      */
     private void loadRec(String key) {
-        OkGo.get("https://tv.aiseet.atianqi.com/i-tvbin/qtv_video/search/get_search_smart_box")
-                .params("format", "json")
-                .params("page_num", 0)
-                .params("page_size", 50) //随便改
-                .params("key", key)
-                .execute(new AbsCallback() {
-                    @Override
-                    public void onSuccess(Response response) {
-                        try {
-                            ArrayList hots = new ArrayList<>();
-                            String result = (String) response.body();
-                            Gson gson = new Gson();
-                            JsonElement json = gson.fromJson(result, JsonElement.class);
-                            JsonArray groupDataArr = json.getAsJsonObject()
-                                    .get("data").getAsJsonObject()
-                                    .get("search_data").getAsJsonObject()
-                                    .get("vecGroupData").getAsJsonArray()
-                                    .get(0).getAsJsonObject()
-                                    .get("group_data").getAsJsonArray();
-                            for (JsonElement groupDataElement : groupDataArr) {
-                                JsonObject groupData = groupDataElement.getAsJsonObject();
-                                String keywordTxt = groupData.getAsJsonObject("dtReportInfo")
-                                        .getAsJsonObject("reportData")
-                                        .get("keyword_txt").getAsString();
-                                hots.add(keywordTxt.trim());
-                            }
-                            tHotSearchText.setText("猜你想搜");
-                            wordAdapter.setNewData(hots);
-                            mGridViewWord.smoothScrollToPosition(0);
-                        } catch (Throwable th) {
-                            th.printStackTrace();
+        String recUrl = "https://tv.aiseet.atianqi.com/i-tvbin/qtv_video/search/get_search_smart_box?format=json&page_num=0&page_size=50&key=" + java.net.URLEncoder.encode(key, java.nio.charset.StandardCharsets.UTF_8);
+        new Thread(() -> {
+            try {
+                String result = com.github.catvod.net.OkHttp.string(recUrl);
+                com.github.tvbox.osc.base.App.post(() -> {
+                    try {
+                        ArrayList hots = new ArrayList<>();
+                        Gson gson = new Gson();
+                        JsonElement json = gson.fromJson(result, JsonElement.class);
+                        JsonArray groupDataArr = json.getAsJsonObject()
+                                .get("data").getAsJsonObject()
+                                .get("search_data").getAsJsonObject()
+                                .get("vecGroupData").getAsJsonArray()
+                                .get(0).getAsJsonObject()
+                                .get("group_data").getAsJsonArray();
+                        for (JsonElement groupDataElement : groupDataArr) {
+                            JsonObject groupData = groupDataElement.getAsJsonObject();
+                            String keywordTxt = groupData.getAsJsonObject("dtReportInfo")
+                                    .getAsJsonObject("reportData")
+                                    .get("keyword_txt").getAsString();
+                            hots.add(keywordTxt.trim());
                         }
-                    }
-
-                    @Override
-                    public String convertResponse(okhttp3.Response response) throws Throwable {
-                        return response.body().string();
+                        tHotSearchText.setText("猜你想搜");
+                        wordAdapter.setNewData(hots);
+                        mGridViewWord.smoothScrollToPosition(0);
+                    } catch (Throwable th) {
+                        th.printStackTrace();
                     }
                 });
+            } catch (Exception ignored) {}
+        }).start();
     }
 
     private void initData() {
@@ -632,12 +622,11 @@ public class SearchActivity extends BaseActivity {
             wordAdapter.setNewData(hots);
             return;
         }
-        OkGo.<String>get("https://node.video.qq.com/x/api/hot_search")
-                .params("channdlId", "0")
-                .params("_", System.currentTimeMillis())
-                .execute(new AbsCallback<String>() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
+        String hotUrl = "https://node.video.qq.com/x/api/hot_search?channdlId=0&_=" + System.currentTimeMillis();
+        new Thread(() -> {
+            try {
+                String result = com.github.catvod.net.OkHttp.string(hotUrl);
+                com.github.tvbox.osc.base.App.post(() -> {
                         try {
                             JsonObject mapResult = JsonParser.parseString(response.body())
                                     .getAsJsonObject()
@@ -659,13 +648,13 @@ public class SearchActivity extends BaseActivity {
                         } catch (Throwable th) {
                             th.printStackTrace();
                         }
-                    }
-
-                    @Override
-                    public String convertResponse(okhttp3.Response response) throws Throwable {
-                        return response.body().string();
-                    }
-                });
+                    });
+                } catch (Exception ignored) {
+                }
+            }).start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void refreshQRCode() {
@@ -802,7 +791,7 @@ public class SearchActivity extends BaseActivity {
     }
 
     private void cancel() {
-        OkGo.getInstance().cancelTag("search");
+        // OkGo已移除: OkGo.getInstance().cancelTag("search");
     }
 
     @Override

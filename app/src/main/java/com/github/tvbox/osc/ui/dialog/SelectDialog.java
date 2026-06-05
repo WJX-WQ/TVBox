@@ -13,7 +13,6 @@ import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.ui.adapter.SelectDialogAdapter;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -21,12 +20,12 @@ public class SelectDialog<T> extends BaseDialog {
 
     private boolean muteCheck = false;
 
-    public SelectDialog(@NonNull @NotNull Context context) {
+    public SelectDialog(@NonNull Context context) {
         super(context);
         setContentView(R.layout.dialog_select);
     }
 
-    public SelectDialog(@NonNull @NotNull Context context, int resId) {
+    public SelectDialog(@NonNull Context context, int resId) {
         super(context);
         setContentView(resId);
     }

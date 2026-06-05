@@ -64,9 +64,8 @@ import com.github.tvbox.osc.viewmodel.SourceViewModel;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.AbsCallback;
-import com.lzy.okgo.model.Response;
+import com.github.catvod.net.OkHttp;
+import com.github.tvbox.osc.base.App;
 import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7GridLayoutManager;
@@ -933,44 +932,28 @@ public class DetailActivity extends BaseActivity {
         if (event.type == RefreshEvent.TYPE_PUSH_VOD) {
             if (event.obj != null) {
                 List<String> data = (List<String>) event.obj;
-                OkGo.getInstance().cancelTag("pushVod");
-                OkGo.<String>post("http://" + data.get(0) + ":" + data.get(1) + "/action")
-                        .tag("pushVod")
-                        .params("id", vodId)
-                        .params("sourceKey", sourceKey)
-                        .params("do", "mirror")
-                        .execute(new AbsCallback<String>() {
-                            @Override
-                            public String convertResponse(okhttp3.Response response) throws Throwable {
-                                if (response.body() != null) {
-                                    return response.body().string();
-                                } else {
-                                    Toast.makeText(DetailActivity.this, "推送失败，填的地址可能不对", Toast.LENGTH_SHORT).show();
-                                    throw new IllegalStateException("网络请求错误");
-                                }
-                            }
-
-                            @Override
-                            public void onSuccess(Response<String> response) {
-                                String r = response.body();
-                                if ("mirrored".equals(r))
-                                    Toast.makeText(DetailActivity.this, "推送成功", Toast.LENGTH_SHORT).show();
-                                else
-                                    Toast.makeText(DetailActivity.this, "推送失败，远端tvbox版本不支持", Toast.LENGTH_SHORT).show();
-                            }
-
-                            @Override
-                            public void onError(Response<String> response) {
-                                super.onError(response);
-                                Toast.makeText(DetailActivity.this, "推送失败，填的地址可能不对", Toast.LENGTH_SHORT).show();
-                            }
+                new Thread(() -> {
+                    try {
+                        String pushUrl = "http://" + data.get(0) + ":" + data.get(1) + "/action";
+                        String body = "id=" + java.net.URLEncoder.encode(vodId, "UTF-8") + "&sourceKey=" + java.net.URLEncoder.encode(sourceKey, "UTF-8") + "&do=mirror";
+                        okhttp3.Response resp = OkHttp.client().newCall(new okhttp3.Request.Builder().url(pushUrl).post(okhttp3.RequestBody.create(null, body)).build()).execute();
+                        String r = resp.body().string();
+                        App.post(() -> {
+                            if ("mirrored".equals(r))
+                                Toast.makeText(DetailActivity.this, "推送成功", Toast.LENGTH_SHORT).show();
+                            else
+                                Toast.makeText(DetailActivity.this, "推送失败，远端tvbox版本不支持", Toast.LENGTH_SHORT).show();
                         });
+                    } catch (Exception e) {
+                        App.post(() -> Toast.makeText(DetailActivity.this, "推送失败，填的地址可能不对", Toast.LENGTH_SHORT).show());
+                    }
+                }).start();
             }
         }
     }
 
     private void switchSearchWord(String word) {
-        OkGo.getInstance().cancelTag("quick_search");
+        // OkGo已移除: cancelTag("quick_search")
         quickSearchData.clear();
         searchTitle = word;
         searchResult();
@@ -985,15 +968,17 @@ public class DetailActivity extends BaseActivity {
         if (hadQuickStart)
             return;
         hadQuickStart = true;
-        OkGo.getInstance().cancelTag("quick_search");
+        // OkGo已移除: cancelTag("quick_search")
         quickSearchWord.clear();
         searchTitle = mVideo.name;
         quickSearchData.clear();
         quickSearchWord.add(searchTitle);
         // 分词
-        OkGo.<String>get("https://api.yesapi.cn/?service=App.Scws.GetWords&text=" + searchTitle + "&app_key=CEE4B8A091578B252AC4C92FB4E893C3&sign=CB7602F3AC922808AF5D475D8DA33302")
-                .tag("fenci")
-                .execute(new AbsCallback<String>() {
+        String fenciUrl = "https://api.yesapi.cn/?service=App.Scws.GetWords&text=" + searchTitle + "&app_key=CEE4B8A091578B252AC4C92FB4E893C3&sign=CB7602F3AC922808AF5D475D8DA33302";
+        new Thread(() -> {
+            try {
+                String json = OkHttp.string(fenciUrl);
+                App.post(() -> {
                     @Override
                     public String convertResponse(okhttp3.Response response) throws Throwable {
                         if (response.body() != null) {
@@ -1004,28 +989,21 @@ public class DetailActivity extends BaseActivity {
                     }
 
                     @Override
-                    public void onSuccess(Response<String> response) {
-                        String json = response.body();
-                        quickSearchWord.clear();
-                        try {
-                            JsonObject resJson = JsonParser.parseString(json).getAsJsonObject();
-                            JsonElement wordsJson = resJson.get("data").getAsJsonObject().get("words");
-
-                            for (JsonElement je : wordsJson.getAsJsonArray()) {
-                                quickSearchWord.add(je.getAsJsonObject().get("word").getAsString());
-                            }
-                        } catch (Throwable th) {
-                            th.printStackTrace();
+                    quickSearchWord.clear();
+                    try {
+                        JsonObject resJson = JsonParser.parseString(json).getAsJsonObject();
+                        JsonElement wordsJson = resJson.get("data").getAsJsonObject().get("words");
+                        for (JsonElement je : wordsJson.getAsJsonArray()) {
+                            quickSearchWord.add(je.getAsJsonObject().get("word").getAsString());
                         }
-                        quickSearchWord.add(searchTitle);
-                        EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_QUICK_SEARCH_WORD, quickSearchWord));
+                    } catch (Throwable th) {
+                        th.printStackTrace();
                     }
-
-                    @Override
-                    public void onError(Response<String> response) {
-                        super.onError(response);
-                    }
+                    quickSearchWord.add(searchTitle);
+                    EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_QUICK_SEARCH_WORD, quickSearchWord));
                 });
+            } catch (Exception ignored) {}
+        }).start();
 
         searchResult();
     }
@@ -1106,10 +1084,7 @@ public class DetailActivity extends BaseActivity {
         } catch (Throwable th) {
             th.printStackTrace();
         }
-        OkGo.getInstance().cancelTag("fenci");
-        OkGo.getInstance().cancelTag("detail");
-        OkGo.getInstance().cancelTag("quick_search");
-        OkGo.getInstance().cancelTag("pushVod");
+        // OkGo已移除: cancelTag("quick_search")
         EventBus.getDefault().unregister(this);
         if (!showPreview) Thunder.stop(true);
     }

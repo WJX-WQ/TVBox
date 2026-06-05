@@ -7,7 +7,7 @@ import androidx.collection.ArrayMap;
 import com.github.tvbox.osc.bean.Doh;
 import com.github.catvod.utils.Path;
 import com.github.catvod.utils.Util;
-import com.github.tvbox.osc.util.OkGoHelper;
+
 import com.google.common.net.HttpHeaders;
 
 import java.util.Map;
@@ -44,7 +44,7 @@ public class OkHttp {
 
     public static Dns dns() {
 //        return get().dns != null ? get().dns : Dns.SYSTEM; // 由于 setDoh(Doh doh)没有被调用导致这里选择的是 Dns.SYSTEM
-        return get().dns != null ? get().dns : OkGoHelper.dnsOverHttps;
+        return get().dns != null ? get().dns : Dns.SYSTEM;
     }
 
     public void setDoh(Doh doh) {
@@ -132,7 +132,15 @@ public class OkHttp {
     }
 
     private static OkHttpClient.Builder getBuilder() {
-        OkHttpClient.Builder builder = new OkHttpClient.Builder().addInterceptor(new OkhttpInterceptor()).connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS).readTimeout(TIMEOUT, TimeUnit.MILLISECONDS).writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS).dns(dns()).hostnameVerifier(SSLCompat.VERIFIER).sslSocketFactory(new SSLCompat(), SSLCompat.TM);
+        OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                .addInterceptor(new OkhttpInterceptor())
+                .connectionSpecs(OkHttpClient.Builder.DEFAULT_CONNECTION_SPECS)
+                .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+                .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+                .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+                .dns(dns())
+                .hostnameVerifier(SSLCompat.VERIFIER)
+                .sslSocketFactory(new SSLCompat(), SSLCompat.TM);
         builder.proxySelector(selector());
         return builder;
     }

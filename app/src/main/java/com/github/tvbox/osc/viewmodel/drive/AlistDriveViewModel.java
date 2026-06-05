@@ -6,10 +6,8 @@ import com.github.tvbox.osc.util.urlhttp.OkHttpUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.AbsCallback;
-import com.lzy.okgo.model.Response;
-import com.lzy.okgo.request.PostRequest;
+import com.github.catvod.net.OkHttp;
+import com.github.tvbox.osc.base.App;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -26,17 +24,7 @@ import java.util.List;
 
 public class AlistDriveViewModel extends AbstractDriveViewModel {
 
-    private void setRequestHeader(PostRequest request, String origin) {
-        request.headers("User-Agent", UA.random());
-        if (origin != null && !origin.isEmpty()) {
-            if (origin.endsWith("/"))
-                origin = origin.substring(0, origin.length() - 1);
-            request.headers("origin", origin);
-            request.headers("Referer", origin);
-        }
-        request.headers("accept", "application/json, text/plain, */*");
-        request.headers("content-type", "application/json;charset=UTF-8");
-    }
+
 
     public final String getUrl(String str) {
         String str2;
@@ -83,23 +71,28 @@ public class AlistDriveViewModel extends AbstractDriveViewModel {
                         }
 
                         if (currentDrive.version == 2) {
-                            PostRequest<String> request = OkGo.<String>post(webLink + "/api/public/path").tag("drive");
                             JSONObject requestBody = new JSONObject();
                             requestBody.put("path", targetPath.isEmpty() ? "/" : targetPath);
                             requestBody.put("password", currentDrive.getConfig().get("password").getAsString());
                             requestBody.put("page_num", 1);
                             requestBody.put("page_size", 200);
-                            request.upJson(requestBody);
-                            setRequestHeader(request, webLink);
-                            request.execute(new AbsCallback<String>() {
-
-                                @Override
-                                public String convertResponse(okhttp3.Response response) throws Throwable {
-                                    return response.body().string();
-                                }
-
-                                @Override
-                                public void onSuccess(Response<String> response) {
+                            String jsonBody = requestBody.toString();
+                            String reqUrl = webLink + "/api/public/path";
+                            okhttp3.Request.Builder reqBuilder = new okhttp3.Request.Builder().url(reqUrl).post(okhttp3.RequestBody.create(okhttp3.MediaType.parse("application/json;charset=UTF-8"), jsonBody));
+                            reqBuilder.header("User-Agent", UA.random());
+                            if (webLink != null && !webLink.isEmpty()) {
+                                String origin = webLink;
+                                if (origin.endsWith("/")) origin = origin.substring(0, origin.length() - 1);
+                                reqBuilder.header("origin", origin);
+                                reqBuilder.header("Referer", origin);
+                            }
+                            reqBuilder.header("accept", "application/json, text/plain, */*");
+                            reqBuilder.header("content-type", "application/json;charset=UTF-8");
+                            new Thread(() -> {
+                                try {
+                                    okhttp3.Response resp = com.github.catvod.net.OkHttp.client().newCall(reqBuilder.build()).execute();
+                                    String respBody = resp.body().string();
+                                    App.post(() -> {
                                     String respBody = response.body();
                                     try {
                                         JsonObject respData = JsonParser.parseString(respBody).getAsJsonObject();
@@ -141,25 +134,29 @@ public class AlistDriveViewModel extends AbstractDriveViewModel {
                                 }
                             });
                         } else if (currentDrive.version == 3) {
-                            PostRequest<String> request = OkGo.<String>post(webLink + "/api/fs/list").tag("drive");
                             JSONObject requestBody = new JSONObject();
                             requestBody.put("path", targetPath.isEmpty() ? "/" : targetPath);
                             requestBody.put("password", currentDrive.getConfig().get("password").getAsString());
                             requestBody.put("page", 1);
                             requestBody.put("per_page", 200);
                             requestBody.put("refresh", false);
-
-                            request.upJson(requestBody);
-                            setRequestHeader(request, webLink);
-                            request.execute(new AbsCallback<String>() {
-
-                                @Override
-                                public String convertResponse(okhttp3.Response response) throws Throwable {
-                                    return response.body().string();
-                                }
-
-                                @Override
-                                public void onSuccess(Response<String> response) {
+                            String jsonBody = requestBody.toString();
+                            String reqUrl = webLink + "/api/fs/list";
+                            okhttp3.Request.Builder reqBuilder = new okhttp3.Request.Builder().url(reqUrl).post(okhttp3.RequestBody.create(okhttp3.MediaType.parse("application/json;charset=UTF-8"), jsonBody));
+                            reqBuilder.header("User-Agent", UA.random());
+                            if (webLink != null && !webLink.isEmpty()) {
+                                String origin = webLink;
+                                if (origin.endsWith("/")) origin = origin.substring(0, origin.length() - 1);
+                                reqBuilder.header("origin", origin);
+                                reqBuilder.header("Referer", origin);
+                            }
+                            reqBuilder.header("accept", "application/json, text/plain, */*");
+                            reqBuilder.header("content-type", "application/json;charset=UTF-8");
+                            new Thread(() -> {
+                                try {
+                                    okhttp3.Response resp = com.github.catvod.net.OkHttp.client().newCall(reqBuilder.build()).execute();
+                                    String respBody = resp.body().string();
+                                    com.github.tvbox.osc.base.App.post(() -> {
                                     String respBody = response.body();
                                     try {
                                         JsonObject respData = JsonParser.parseString(respBody).getAsJsonObject();
@@ -194,8 +191,9 @@ public class AlistDriveViewModel extends AbstractDriveViewModel {
                                         if (callback != null)
                                             callback.fail("无法访问，请注意地址格式");
                                     }
-                                }
-                            });
+                                });
+                            } catch (Exception ignored) {}
+                        }).start();
                         }
                     } catch (Exception ex) {
                         ex.printStackTrace();

@@ -15,7 +15,6 @@ import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.bean.SourceBean;
 import com.github.tvbox.osc.util.SearchHelper;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +27,7 @@ public class CheckboxSearchAdapter extends ListAdapter<SourceBean, CheckboxSearc
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_dialog_checkbox_search, parent, false));
     }
 

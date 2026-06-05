@@ -12,14 +12,13 @@ import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.Updater;
 import com.github.tvbox.osc.BuildConfig;
 
-import org.jetbrains.annotations.NotNull;
 
 public class AboutDialog extends BaseDialog {
 
     private Updater updater;
     private Context context;
 
-    public AboutDialog(@NonNull @NotNull Context context) {
+    public AboutDialog(@NonNull Context context) {
         super(context);
         this.context = context;
         setContentView(R.layout.dialog_about);

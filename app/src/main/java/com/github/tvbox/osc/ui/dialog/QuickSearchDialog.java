@@ -18,7 +18,6 @@ import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +28,7 @@ public class QuickSearchDialog extends BaseDialog {
     private TvRecyclerView mGridView;
     private TvRecyclerView mGridViewWord;
 
-    public QuickSearchDialog(@NonNull @NotNull Context context) {
+    public QuickSearchDialog(@NonNull Context context) {
         super(context, R.style.CustomDialogStyleDim);
         setCanceledOnTouchOutside(false);
         setCancelable(true);

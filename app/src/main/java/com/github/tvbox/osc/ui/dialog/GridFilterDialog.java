@@ -27,14 +27,13 @@ import com.github.tvbox.osc.ui.adapter.GridFilterKVAdapter;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
 public class GridFilterDialog extends BaseDialog {
     public LinearLayout filterRoot;
 
-    public GridFilterDialog(@NonNull @NotNull Context context) {
+    public GridFilterDialog(@NonNull Context context) {
         super(context);
         setCanceledOnTouchOutside(false);
         setCancelable(true);

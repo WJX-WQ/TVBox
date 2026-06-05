@@ -11,8 +11,7 @@ import com.github.tvbox.osc.util.StringUtils;
 import com.github.tvbox.osc.util.urlhttp.OkHttpUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.model.HttpHeaders;
+
 import com.orhanobut.hawk.Hawk;
 import org.json.JSONObject;
 import java.io.BufferedInputStream;
@@ -278,20 +277,18 @@ public class FileUtils {
 
     public static String get(String str, Map<String, String> headerMap) {
         try {
-            HttpHeaders h = new HttpHeaders();
-            Response response = null;
+            okhttp3.OkHttpClient client = com.github.catvod.net.OkHttp.client();
             if (headerMap != null) {
+                okhttp3.Headers.Builder hb = new okhttp3.Headers.Builder();
                 for (String key : headerMap.keySet()) {
-                    h.put(key, headerMap.get(key));
+                    hb.add(key, headerMap.get(key));
                 }
-                response = OkGo.<String>get(str).headers(h).execute();
+                okhttp3.Response response = client.newCall(new okhttp3.Request.Builder().url(str).headers(hb.build()).build()).execute();
+                return response.body() != null ? response.body().string() : "";
             } else {
-                response =OkGo.<String>get(str).headers("User-Agent", str.startsWith("https://gitcode.net/") ? UA.random() : "okhttp/3.15").execute();
-            }
-            if (response.isSuccessful() && response.body() != null){
-                return new String(response.body().bytes(), "UTF-8");
-            } else {
-                return "";
+                String ua = str.startsWith("https://gitcode.net/") ? UA.random() : "okhttp/3.15";
+                okhttp3.Response response = client.newCall(new okhttp3.Request.Builder().url(str).header("User-Agent", ua).build()).execute();
+                return response.body() != null ? response.body().string() : "";
             }
         } catch (IOException e) {
             return "";

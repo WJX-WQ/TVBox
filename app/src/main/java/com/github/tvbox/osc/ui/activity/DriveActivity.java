@@ -41,7 +41,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.lzy.okgo.OkGo;
+
 import com.obsez.android.lib.filechooser.ChooserDialog;
 import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
@@ -50,7 +50,6 @@ import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.text.Collator;
@@ -160,12 +159,12 @@ public class DriveActivity extends BaseActivity {
                     }
                 }, new DiffUtil.ItemCallback<StorageDriveType.TYPE>() {
                     @Override
-                    public boolean areItemsTheSame(@NonNull @NotNull StorageDriveType.TYPE oldItem, @NonNull @NotNull StorageDriveType.TYPE newItem) {
+                    public boolean areItemsTheSame(@NonNull StorageDriveType.TYPE oldItem, @NonNull StorageDriveType.TYPE newItem) {
                         return oldItem.equals(newItem);
                     }
 
                     @Override
-                    public boolean areContentsTheSame(@NonNull @NotNull StorageDriveType.TYPE oldItem, @NonNull @NotNull StorageDriveType.TYPE newItem) {
+                    public boolean areContentsTheSame(@NonNull StorageDriveType.TYPE oldItem, @NonNull StorageDriveType.TYPE newItem) {
                         return oldItem.equals(newItem);
                     }
                 }, Arrays.asList(types), 0);
@@ -480,7 +479,7 @@ public class DriveActivity extends BaseActivity {
     }
 
     private void cancel() {
-        OkGo.getInstance().cancelTag("drive");
+        // OkGo已移除: OkGo.getInstance().cancelTag("drive");
     }
 
     private void returnPreviousFolder() {

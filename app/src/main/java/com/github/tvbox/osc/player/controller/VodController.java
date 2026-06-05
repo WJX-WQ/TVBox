@@ -57,10 +57,9 @@ import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
 
 import org.greenrobot.eventbus.EventBus;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xwalk.core.XWalkView;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -72,7 +71,7 @@ import xyz.doikki.videoplayer.player.VideoView;
 import xyz.doikki.videoplayer.util.PlayerUtils;
 
 public class VodController extends BaseController {
-    public VodController(@NonNull @NotNull Context context) {
+    public VodController(@NonNull Context context) {
         super(context);
         mHandlerCallback = new HandlerCallback() {
             @Override
@@ -745,12 +744,12 @@ public class VodController extends BaseController {
                         }
                     }, new DiffUtil.ItemCallback<Integer>() {
                         @Override
-                        public boolean areItemsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                        public boolean areItemsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                             return oldItem.intValue() == newItem.intValue();
                         }
 
                         @Override
-                        public boolean areContentsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                        public boolean areContentsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                             return oldItem.intValue() == newItem.intValue();
                         }
                     }, players, defaultPos);
@@ -1576,7 +1575,6 @@ public class VodController extends BaseController {
         return true;
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static void circularReveal(View v, int direction) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             int radius = Math.max(v.getWidth(), v.getHeight()) / 2;
@@ -1647,7 +1645,7 @@ public class VodController extends BaseController {
         this.hasDanmu = hasDanmu;
     }
 
-    public void evaluateScript(SourceBean sourceBean,String url, WebView web_view, XWalkView xWalk_view){
+    public void evaluateScript(SourceBean sourceBean, String url, WebView web_view) {
         String clickSelector = sourceBean.getClickSelector().trim();
         clickSelector=clickSelector.isEmpty()?VideoParseRuler.getHostScript(url):clickSelector;
         if (!clickSelector.isEmpty()) {
@@ -1672,10 +1670,7 @@ public class VodController extends BaseController {
                     web_view.loadUrl("javascript:" + js);
                 }
             }
-            if(xWalk_view!=null){
-                //4.0+开始全部支持这种写法
-                xWalk_view.evaluateJavascript(js, null);
-            }
+
         }
     }	    
 }

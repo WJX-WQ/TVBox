@@ -2,7 +2,6 @@ package com.github.tvbox.osc.util.urlhttp;
 
 import com.github.tvbox.osc.util.OkGoHelper;
 import com.github.tvbox.osc.util.UA;
-import com.lzy.okgo.OkGo;
 
 import java.io.IOException;
 import java.util.List;
@@ -103,8 +102,8 @@ public class OkHttpUtil {
 
     public static String get(String str) {
         try {
-            return OkGo.<String>get(str).headers("User-Agent", UA.random()).execute().body().string();
-        } catch (IOException e) {
+            return com.github.catvod.net.OkHttp.string(str);
+        } catch (Exception e) {
             return "";
         }
     }

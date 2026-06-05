@@ -13,7 +13,6 @@ import com.github.tvbox.osc.ui.activity.HomeActivity;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.SubtitleHelper;
 
-import org.jetbrains.annotations.NotNull;
 
 public class SubtitleDialog extends BaseDialog {
 

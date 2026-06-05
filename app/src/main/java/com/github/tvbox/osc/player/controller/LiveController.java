@@ -6,7 +6,6 @@ import android.widget.ProgressBar;
 
 import com.github.tvbox.osc.R;
 
-import org.jetbrains.annotations.NotNull;
 
 /**
  * 直播控制器

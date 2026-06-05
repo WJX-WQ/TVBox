@@ -18,14 +18,13 @@ import com.github.tvbox.osc.widget.OnItemSelectedListener;
 import com.owen.tvrecyclerview.widget.SimpleOnItemListener;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MediaSettingDialog extends BaseDialog {
 
-    public MediaSettingDialog(@NonNull @NotNull Context context) {
+    public MediaSettingDialog(@NonNull Context context) {
         super(context);
         setContentView(R.layout.dialog_media_setting);
         setCanceledOnTouchOutside(true);

@@ -11,7 +11,6 @@ import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.orhanobut.hawk.Hawk;
 
-import org.jetbrains.annotations.NotNull;
 
 /**
  * 描述
@@ -23,7 +22,7 @@ public class HomeIconDialog extends BaseDialog {
     private final TextView tvHomeSearch;
     private final TextView tvHomeMenu;
 
-    public HomeIconDialog(@NonNull @NotNull Context context) {
+    public HomeIconDialog(@NonNull Context context) {
         super(context);
         setContentView(R.layout.dialog_homeoption);
         setCanceledOnTouchOutside(true);

@@ -20,7 +20,6 @@ import com.google.gson.JsonParser;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jetbrains.annotations.NotNull;
 
 public class WebdavDialog extends BaseDialog {
 
@@ -31,7 +30,7 @@ public class WebdavDialog extends BaseDialog {
     private EditText etUsername;
     private EditText etPassword;
 
-    public WebdavDialog(@NonNull @NotNull Context context, StorageDrive drive) {
+    public WebdavDialog(@NonNull Context context, StorageDrive drive) {
         super(context);
         setContentView(R.layout.dialog_webdav);
         if(drive != null)

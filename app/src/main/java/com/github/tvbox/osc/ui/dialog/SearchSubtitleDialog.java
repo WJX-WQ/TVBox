@@ -27,7 +27,6 @@ import com.github.tvbox.osc.viewmodel.SubtitleViewModel;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +50,7 @@ public class SearchSubtitleDialog extends BaseDialog {
     private boolean isSearchPag = true;
 
 
-    public SearchSubtitleDialog(@NonNull @NotNull Context context) {
+    public SearchSubtitleDialog(@NonNull Context context) {
         super(context);
         mContext = context;
         if (context instanceof Activity) {

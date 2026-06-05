@@ -5,7 +5,7 @@ import android.util.Base64;
 import com.github.catvod.net.OkHttp;
 import com.github.tvbox.osc.util.LOG;
 import com.google.common.net.HttpHeaders;
-import com.lzy.okgo.OkGo;
+
 import com.whl.quickjs.wrapper.JSArray;
 import com.whl.quickjs.wrapper.JSObject;
 import com.whl.quickjs.wrapper.JSUtils;
@@ -118,7 +118,7 @@ public class Connect {
                     }
                 }
             }
-            OkGo.getInstance().cancelTag(tag);
+            // OkGo.getInstance().cancelTag(tag); // 已由上方 OkHttp dispatcher 处理
         } catch (Exception e) {
             LOG.e(e);
         }

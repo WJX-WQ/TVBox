@@ -33,9 +33,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.AbsCallback;
-import com.lzy.okgo.model.Response;
+import com.github.catvod.net.OkHttp;
+import com.github.tvbox.osc.base.App;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7GridLayoutManager;
 import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
@@ -288,41 +287,26 @@ public class FastSearchActivity extends BaseActivity {
     private void fenci() {
         if (!quickSearchWord.isEmpty()) return; // 如果经有分词了，不再进行二次分词
         // 分词
-        OkGo.<String>get("https://api.yesapi.cn/?service=App.Scws.GetWords&text=" + searchTitle + "&app_key=CEE4B8A091578B252AC4C92FB4E893C3&sign=CB7602F3AC922808AF5D475D8DA33302")
-                .tag("fenci")
-                .execute(new AbsCallback<String>() {
-                    @Override
-                    public String convertResponse(okhttp3.Response response) throws Throwable {
-                        if (response.body() != null) {
-                            return response.body().string();
-                        } else {
-                            throw new IllegalStateException("网络请求错误");
+        String fenciUrl = "https://api.yesapi.cn/?service=App.Scws.GetWords&text=" + searchTitle + "&app_key=CEE4B8A091578B252AC4C92FB4E893C3&sign=CB7602F3AC922808AF5D475D8DA33302";
+        new Thread(() -> {
+            try {
+                String result = OkHttp.string(fenciUrl);
+                App.post(() -> {
+                    quickSearchWord.clear();
+                    try {
+                        JsonObject resJson = JsonParser.parseString(result).getAsJsonObject();
+                        JsonElement wordsJson = resJson.get("data").getAsJsonObject().get("words");
+                        for (JsonElement je : wordsJson.getAsJsonArray()) {
+                            quickSearchWord.add(je.getAsJsonObject().get("word").getAsString());
                         }
+                    } catch (Throwable th) {
+                        th.printStackTrace();
                     }
-
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String json = response.body();
-                        quickSearchWord.clear();
-                        try {
-                            JsonObject resJson = JsonParser.parseString(json).getAsJsonObject();
-                            JsonElement wordsJson = resJson.get("data").getAsJsonObject().get("words");
-
-                            for (JsonElement je : wordsJson.getAsJsonArray()) {
-                                quickSearchWord.add(je.getAsJsonObject().get("word").getAsString());
-                            }
-                        } catch (Throwable th) {
-                            th.printStackTrace();
-                        }
-                        quickSearchWord.add(searchTitle);
-                        EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_QUICK_SEARCH_WORD, quickSearchWord));
-                    }
-
-                    @Override
-                    public void onError(Response<String> response) {
-                        super.onError(response);
-                    }
+                    quickSearchWord.add(searchTitle);
+                    EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_QUICK_SEARCH_WORD, quickSearchWord));
                 });
+            } catch (Exception ignored) {}
+        }).start();
     }
 
     private void initCheckedSourcesForSearch() {
@@ -505,7 +489,7 @@ public class FastSearchActivity extends BaseActivity {
     }
 
     private void cancel() {
-        OkGo.getInstance().cancelTag("search");
+        // OkGo已移除: OkGo.getInstance().cancelTag("search");
     }
 
     @Override

@@ -10,12 +10,11 @@ import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.ui.adapter.ApiHistoryDialogAdapter;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class ApiHistoryDialog extends BaseDialog {
-    public ApiHistoryDialog(@NonNull @NotNull Context context) {
+    public ApiHistoryDialog(@NonNull Context context) {
         super(context, R.style.CustomDialogStyleDim);
         setContentView(R.layout.dialog_api_history);
     }

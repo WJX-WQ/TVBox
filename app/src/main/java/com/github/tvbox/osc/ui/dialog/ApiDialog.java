@@ -24,7 +24,6 @@ import com.orhanobut.hawk.Hawk;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +60,7 @@ public class ApiDialog extends BaseDialog {
         }
     }
 
-    public ApiDialog(@NonNull @NotNull Context context) {
+    public ApiDialog(@NonNull Context context) {
         super(context);
         setContentView(R.layout.dialog_api);
         setCanceledOnTouchOutside(true);

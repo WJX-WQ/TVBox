@@ -9,7 +9,7 @@ import android.util.Xml;
 import androidx.appcompat.view.ContextThemeWrapper;
 
 import com.github.tvbox.osc.R;
-import com.lzy.okgo.utils.OkLogger;
+
 
 public class PlayerViewRenderViewFactory extends RenderViewFactory {
     int renderType;
@@ -30,7 +30,7 @@ public class PlayerViewRenderViewFactory extends RenderViewFactory {
             AttributeSet attrs = Xml.asAttributeSet(xml);
             return new PlayerViewRenderView(themeWrapper, attrs);
         } catch (Throwable t) {
-            OkLogger.d("createRenderView  " + Log.getStackTraceString(t));
+            Log.d("PlayerViewRenderViewFactory", "createRenderView  " + Log.getStackTraceString(t));
             return new PlayerViewRenderView(themeWrapper);
         }
     }

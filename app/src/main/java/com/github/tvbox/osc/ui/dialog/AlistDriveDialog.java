@@ -20,7 +20,6 @@ import com.google.gson.JsonParser;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jetbrains.annotations.NotNull;
 
 public class AlistDriveDialog extends BaseDialog {
 
@@ -30,7 +29,7 @@ public class AlistDriveDialog extends BaseDialog {
     private EditText etInitPath;
     private EditText etPassword;
 
-    public AlistDriveDialog(@NonNull @NotNull Context context, StorageDrive drive) {
+    public AlistDriveDialog(@NonNull Context context, StorageDrive drive) {
         super(context);
         setContentView(R.layout.dialog_alistdrive);
         if(drive != null)

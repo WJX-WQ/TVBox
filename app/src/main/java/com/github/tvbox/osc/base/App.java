@@ -19,6 +19,8 @@ import com.github.tvbox.osc.util.FileUtils;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.LocaleHelper;
 import com.github.tvbox.osc.util.LOG;
+import com.github.tvbox.osc.bean.Doh;
+import com.github.catvod.net.OkHttp;
 import com.github.tvbox.osc.util.OkGoHelper;
 import com.github.tvbox.osc.util.PlayerHelper;
 import com.github.tvbox.osc.util.SubtitleHelper;
@@ -67,6 +69,11 @@ public class App extends MultiDexApplication {
         initLocale();
         // OKGo
         OkGoHelper.init();
+        // 同步 DoH 到 catvod/net/OkHttp 层
+        String dohUrl = OkGoHelper.getDohUrl(Hawk.get(HawkConfig.DOH_URL, 0));
+        if (!dohUrl.isEmpty()) {
+            OkHttp.get().setDoh(new Doh().url(dohUrl));
+        }
         // 闭关检查模式
         XXPermissions.setCheckMode(false);
         // Get EPG Info
@@ -83,13 +90,14 @@ public class App extends MultiDexApplication {
                 .setSupportDP(false)
                 .setSupportSP(false)
                 .setSupportSubunits(Subunits.MM);
+        // 修复 Android 14+：冷启动时 ScreenUtils 可能获取到竖屏宽度，导致 xdpi 计算错误、UI 变小
+        int screenWidth = AutoSizeConfig.getInstance().getScreenWidth();
+        int screenHeight = AutoSizeConfig.getInstance().getScreenHeight();
+        if (screenWidth < screenHeight) {
+            AutoSizeConfig.getInstance().setScreenWidth(screenHeight);
+            AutoSizeConfig.getInstance().setScreenHeight(screenWidth);
+        }
         PlayerHelper.init();
-
-        // Delete Cache
-        /*File dir = getCacheDir();
-        FileUtils.recursiveDelete(dir);
-        dir = getExternalCacheDir();
-        FileUtils.recursiveDelete(dir);*/
 
         FileUtils.cleanPlayerCache();
 

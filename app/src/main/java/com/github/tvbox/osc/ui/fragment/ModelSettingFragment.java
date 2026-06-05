@@ -31,22 +31,19 @@ import com.github.tvbox.osc.ui.dialog.HomeIconDialog;
 import com.github.tvbox.osc.ui.dialog.MediaSettingDialog;
 import com.github.tvbox.osc.ui.dialog.ResetDialog;
 import com.github.tvbox.osc.ui.dialog.SelectDialog;
-import com.github.tvbox.osc.ui.dialog.XWalkInitDialog;
+
 import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.HistoryHelper;
 import com.github.tvbox.osc.util.OkGoHelper;
 import com.github.tvbox.osc.util.PlayerHelper;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.FileCallback;
-import com.lzy.okgo.model.Progress;
-import com.lzy.okgo.model.Response;
+import com.github.catvod.net.OkHttp;
+import com.github.tvbox.osc.base.App;
 import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7GridLayoutManager;
 
 import org.greenrobot.eventbus.EventBus;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -134,7 +131,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
         tvRender = findViewById(R.id.tvRenderType);
         tvRender.setText(PlayerHelper.getRenderName(Hawk.get(HawkConfig.PLAY_RENDER, 0)));
         tvParseWebView = findViewById(R.id.tvParseWebView);
-        tvParseWebView.setText(Hawk.get(HawkConfig.PARSE_WEBVIEW, true) ? "系统自带" : "XWalkView");
+        tvParseWebView.setText(Hawk.get(HawkConfig.PARSE_WEBVIEW, true) ? "系统自带" : "WebView");
         tvSearchView = findViewById(R.id.tvSearchView);
         tvSearchView.setText(getSearchView(Hawk.get(HawkConfig.SEARCH_VIEW, 0)));
         tvDns = findViewById(R.id.tvDns);
@@ -245,12 +242,12 @@ public class ModelSettingFragment extends BaseLazyFragment {
                         }
                     }, new DiffUtil.ItemCallback<SourceBean>() {
                         @Override
-                        public boolean areItemsTheSame(@NonNull @NotNull SourceBean oldItem, @NonNull @NotNull SourceBean newItem) {
+                        public boolean areItemsTheSame(@NonNull SourceBean oldItem, @NonNull SourceBean newItem) {
                             return oldItem == newItem;
                         }
 
                         @Override
-                        public boolean areContentsTheSame(@NonNull @NotNull SourceBean oldItem, @NonNull @NotNull SourceBean newItem) {
+                        public boolean areContentsTheSame(@NonNull SourceBean oldItem, @NonNull SourceBean newItem) {
                             return oldItem.getKey().equals(newItem.getKey());
                         }
                     }, sites, sites.indexOf(ApiConfig.get().getHomeSourceBean()));
@@ -300,12 +297,12 @@ public class ModelSettingFragment extends BaseLazyFragment {
                     }
                 }, new DiffUtil.ItemCallback<Integer>() {
                     @Override
-                    public boolean areItemsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    public boolean areItemsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                         return oldItem.intValue() == newItem.intValue();
                     }
 
                     @Override
-                    public boolean areContentsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    public boolean areContentsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                         return oldItem.intValue() == newItem.intValue();
                     }
                 }, types, defaultPos);
@@ -339,12 +336,12 @@ public class ModelSettingFragment extends BaseLazyFragment {
                     }
                 }, new DiffUtil.ItemCallback<Integer>() {
                     @Override
-                    public boolean areItemsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    public boolean areItemsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                         return oldItem.intValue() == newItem.intValue();
                     }
 
                     @Override
-                    public boolean areContentsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    public boolean areContentsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                         return oldItem.intValue() == newItem.intValue();
                     }
                 }, types, defaultPos);
@@ -389,12 +386,12 @@ public class ModelSettingFragment extends BaseLazyFragment {
                     }
                 }, new DiffUtil.ItemCallback<Integer>() {
                     @Override
-                    public boolean areItemsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    public boolean areItemsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                         return oldItem.intValue() == newItem.intValue();
                     }
 
                     @Override
-                    public boolean areContentsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    public boolean areContentsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                         return oldItem.intValue() == newItem.intValue();
                     }
                 }, players, defaultPos);
@@ -427,11 +424,11 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 }
             }, new DiffUtil.ItemCallback<String>() {
                 @Override
-                public boolean areItemsTheSame(@NonNull @NotNull String oldItem, @NonNull @NotNull String newItem) {
+                public boolean areItemsTheSame(@NonNull String oldItem, @NonNull String newItem) {
                     return oldItem.equals(newItem);
                 }
                 @Override
-                public boolean areContentsTheSame(@NonNull @NotNull String oldItem, @NonNull @NotNull String newItem) {
+                public boolean areContentsTheSame(@NonNull String oldItem, @NonNull String newItem) {
                     return oldItem.equals(newItem);
                 }
             }, bgPlayTypes,bgPlayTypePos);
@@ -473,12 +470,12 @@ public class ModelSettingFragment extends BaseLazyFragment {
                     }
                 }, new DiffUtil.ItemCallback<Integer>() {
                     @Override
-                    public boolean areItemsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    public boolean areItemsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                         return oldItem.intValue() == newItem.intValue();
                     }
 
                     @Override
-                    public boolean areContentsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    public boolean areContentsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                         return oldItem.intValue() == newItem.intValue();
                     }
                 }, players, defaultPos);
@@ -510,17 +507,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 FastClickCheckUtil.check(v);
                 boolean useSystem = !Hawk.get(HawkConfig.PARSE_WEBVIEW, true);
                 Hawk.put(HawkConfig.PARSE_WEBVIEW, useSystem);
-                tvParseWebView.setText(Hawk.get(HawkConfig.PARSE_WEBVIEW, true) ? "系统自带" : "XWalkView");
-                if (!useSystem) {
-                    Toast.makeText(mContext, "注意: XWalkView只适用于部分低Android版本，Android5.0以上推荐使用系统自带", Toast.LENGTH_LONG).show();
-                    XWalkInitDialog dialog = new XWalkInitDialog(mContext);
-                    dialog.setOnListener(new XWalkInitDialog.OnListener() {
-                        @Override
-                        public void onchange() {
-                        }
-                    });
-                    dialog.show();
-                }
+                tvParseWebView.setText(useSystem ? "系统自带" : "WebView");
             }
         });
         // Select System Render ( Surface/Texture View ) ---------------------
@@ -548,12 +535,12 @@ public class ModelSettingFragment extends BaseLazyFragment {
                     }
                 }, new DiffUtil.ItemCallback<Integer>() {
                     @Override
-                    public boolean areItemsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    public boolean areItemsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                         return oldItem.intValue() == newItem.intValue();
                     }
 
                     @Override
-                    public boolean areContentsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    public boolean areContentsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                         return oldItem.intValue() == newItem.intValue();
                     }
                 }, renders, defaultPos);
@@ -585,12 +572,12 @@ public class ModelSettingFragment extends BaseLazyFragment {
                     }
                 }, new DiffUtil.ItemCallback<String>() {
                     @Override
-                    public boolean areItemsTheSame(@NonNull @NotNull String oldItem, @NonNull @NotNull String newItem) {
+                    public boolean areItemsTheSame(@NonNull String oldItem, @NonNull String newItem) {
                         return oldItem.equals(newItem);
                     }
 
                     @Override
-                    public boolean areContentsTheSame(@NonNull @NotNull String oldItem, @NonNull @NotNull String newItem) {
+                    public boolean areContentsTheSame(@NonNull String oldItem, @NonNull String newItem) {
                         return oldItem.equals(newItem);
                     }
                 }, OkGoHelper.dnsHttpsList, dohUrl);
@@ -622,22 +609,16 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 FastClickCheckUtil.check(v);
                 if (!ApiConfig.get().wallpaper.isEmpty())
                     Toast.makeText(mContext, getString(R.string.mn_wall_load), Toast.LENGTH_SHORT).show();
-                OkGo.<File>get(ApiConfig.get().wallpaper).execute(new FileCallback(requireActivity().getFilesDir().getAbsolutePath(), "wp") {
-                    @Override
-                    public void onSuccess(Response<File> response) {
-                        ((BaseActivity) requireActivity()).changeWallpaper(true);
-                    }
-
-                    @Override
-                    public void onError(Response<File> response) {
-                        super.onError(response);
-                    }
-
-                    @Override
-                    public void downloadProgress(Progress progress) {
-                        super.downloadProgress(progress);
-                    }
-                });
+                new Thread(() -> {
+                    try {
+                        okhttp3.Response resp = OkHttp.newCall(ApiConfig.get().wallpaper).execute();
+                        java.io.File wp = new java.io.File(requireActivity().getFilesDir().getAbsolutePath() + "/wp");
+                        java.io.FileOutputStream fos = new java.io.FileOutputStream(wp);
+                        fos.write(resp.body().bytes());
+                        fos.close();
+                        App.post(() -> ((BaseActivity) requireActivity()).changeWallpaper(true));
+                    } catch (Exception ignored) {}
+                }).start();
             }
         });
         // Restore Default Wallpaper from system -------------------------
@@ -675,12 +656,12 @@ public class ModelSettingFragment extends BaseLazyFragment {
                     }
                 }, new DiffUtil.ItemCallback<Integer>() {
                     @Override
-                    public boolean areItemsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    public boolean areItemsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                         return oldItem.intValue() == newItem.intValue();
                     }
 
                     @Override
-                    public boolean areContentsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    public boolean areContentsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                         return oldItem.intValue() == newItem.intValue();
                     }
                 }, types, defaultPos);
@@ -721,12 +702,12 @@ public class ModelSettingFragment extends BaseLazyFragment {
                     }
                 }, new DiffUtil.ItemCallback<Integer>() {
                     @Override
-                    public boolean areItemsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    public boolean areItemsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                         return oldItem.intValue() == newItem.intValue();
                     }
 
                     @Override
-                    public boolean areContentsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    public boolean areContentsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                         return oldItem.intValue() == newItem.intValue();
                     }
                 }, types, defaultPos);
@@ -772,12 +753,12 @@ public class ModelSettingFragment extends BaseLazyFragment {
                     }
                 }, new DiffUtil.ItemCallback<Integer>() {
                     @Override
-                    public boolean areItemsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    public boolean areItemsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                         return oldItem.intValue() == newItem.intValue();
                     }
 
                     @Override
-                    public boolean areContentsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    public boolean areContentsTheSame(@NonNull Integer oldItem, @NonNull Integer newItem) {
                         return oldItem.intValue() == newItem.intValue();
                     }
                 }, types, defaultPos);

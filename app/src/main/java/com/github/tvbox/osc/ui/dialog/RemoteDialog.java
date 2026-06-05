@@ -10,7 +10,6 @@ import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.server.ControlManager;
 import com.github.tvbox.osc.ui.tv.QRCodeGen;
 
-import org.jetbrains.annotations.NotNull;
 
 import me.jessyan.autosize.utils.AutoSizeUtils;
 
@@ -18,7 +17,7 @@ public class RemoteDialog extends BaseDialog {
     private ImageView ivQRCode;
     private TextView tvAddress;
 
-    public RemoteDialog(@NonNull @NotNull Context context) {
+    public RemoteDialog(@NonNull Context context) {
         super(context);
         setContentView(R.layout.dialog_remote);
         setCanceledOnTouchOutside(false);

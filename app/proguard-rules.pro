@@ -43,12 +43,7 @@
 -keep public class * extends android.preference.Preference
 -keep public class * extends android.view.View
 
-# 保留support下的所有类及其内部类
--keep class android.support.** {*;}
-# 保留继承的
--keep public class * extends android.support.v4.**
--keep public class * extends android.support.v7.**
--keep public class * extends android.support.annotation.**
+
 
 -keep class com.google.android.material.** { *; }
 -dontwarn com.google.android.material.**
@@ -125,13 +120,9 @@
     void *(**On*Event);
     void *(**On*Listener);
 }
-#xwalk
--keep class org.xwalk.core.** { *; }
--keep class org.crosswalk.engine.** { *; }
--keep class org.chromium.** { *; }
--dontwarn android.view.**
--dontwarn android.media.**
--dontwarn org.chromium.**
+
+
+
 #okhttp
 -dontwarn okhttp3.**
 -keep class okhttp3.**{*;}
@@ -174,10 +165,7 @@
 -keepclassmembers class * extends org.greenrobot.eventbus.util.ThrowableFailureEvent {
     <init>(java.lang.Throwable);
 }
-#bugly
--dontwarn com.tencent.bugly.**
--keep public class com.tencent.bugly.**{*;}
--keep class android.support.**{*;}
+
 
 #dkplayer
 -keep class com.dueeeke.videoplayer.** { *; }

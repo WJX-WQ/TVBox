@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.tvbox.osc.R;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +20,7 @@ public class ApiHistoryDialogAdapter extends ListAdapter<String, ApiHistoryDialo
 
     class SelectViewHolder extends RecyclerView.ViewHolder {
 
-        public SelectViewHolder(@NonNull @NotNull View itemView) {
+        public SelectViewHolder(@NonNull View itemView) {
             super(itemView);
         }
     }
@@ -42,12 +41,12 @@ public class ApiHistoryDialogAdapter extends ListAdapter<String, ApiHistoryDialo
     public ApiHistoryDialogAdapter(SelectDialogInterface dialogInterface) {
         super(new DiffUtil.ItemCallback<String>() {
             @Override
-            public boolean areItemsTheSame(@NonNull @NotNull String oldItem, @NonNull @NotNull String newItem) {
+            public boolean areItemsTheSame(@NonNull String oldItem, @NonNull String newItem) {
                 return oldItem.equals(newItem);
             }
 
             @Override
-            public boolean areContentsTheSame(@NonNull @NotNull String oldItem, @NonNull @NotNull String newItem) {
+            public boolean areContentsTheSame(@NonNull String oldItem, @NonNull String newItem) {
                 return oldItem.equals(newItem);
             }
         });
@@ -68,12 +67,12 @@ public class ApiHistoryDialogAdapter extends ListAdapter<String, ApiHistoryDialo
 
 
     @Override
-    public ApiHistoryDialogAdapter.SelectViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
+    public ApiHistoryDialogAdapter.SelectViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new ApiHistoryDialogAdapter.SelectViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_dialog_api_history, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull @NotNull ApiHistoryDialogAdapter.SelectViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ApiHistoryDialogAdapter.SelectViewHolder holder, int position) {
         String value = data.get(position);
         String name = value;
         if (select.equals(value))

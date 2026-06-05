@@ -1,7 +1,5 @@
 package com.github.tvbox.osc.util.parser;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
@@ -11,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-@TargetApi(Build.VERSION_CODES.KITKAT)
 public class Utils {
 
     public static final Pattern RULE = Pattern.compile("http((?!http).){12,}?\\.(m3u8|mp4|flv|avi|mkv|rm|wmv|mpg|m4a|mp3)\\?.*|http((?!http).){12,}\\.(m3u8|mp4|flv|avi|mkv|rm|wmv|mpg|m4a|mp3)|http((?!http).)*?video/tos*");

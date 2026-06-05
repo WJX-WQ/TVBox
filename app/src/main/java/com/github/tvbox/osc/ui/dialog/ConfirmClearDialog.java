@@ -13,7 +13,6 @@ import com.github.tvbox.osc.cache.VodCollect;
 import com.github.tvbox.osc.ui.activity.CollectActivity;
 import com.github.tvbox.osc.ui.activity.HistoryActivity;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +21,7 @@ public class ConfirmClearDialog extends BaseDialog {
     private final TextView tvYes;
     private final TextView tvNo;
 
-    public ConfirmClearDialog(@NonNull @NotNull Context context, String type) {
+    public ConfirmClearDialog(@NonNull Context context, String type) {
         super(context);
         setContentView(R.layout.dialog_confirm);
         setCanceledOnTouchOutside(true);

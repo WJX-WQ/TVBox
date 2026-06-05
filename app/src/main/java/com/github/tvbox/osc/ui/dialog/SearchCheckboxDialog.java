@@ -16,7 +16,6 @@ import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7GridLayoutManager;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +32,7 @@ public class SearchCheckboxDialog extends BaseDialog{
 
     public HashMap<String, String> mCheckSourcees;
 
-    public SearchCheckboxDialog(@NonNull @NotNull Context context, List<SourceBean> sourceList, HashMap<String, String> checkedSources) {
+    public SearchCheckboxDialog(@NonNull Context context, List<SourceBean> sourceList, HashMap<String, String> checkedSources) {
         super(context);
         if (context instanceof Activity) {
             setOwnerActivity((Activity) context);

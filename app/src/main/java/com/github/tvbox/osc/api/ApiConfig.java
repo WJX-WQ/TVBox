@@ -32,9 +32,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.AbsCallback;
-import com.lzy.okgo.model.Response;
+import com.github.tvbox.osc.base.App;
 import com.orhanobut.hawk.Hawk;
 
 import org.apache.commons.lang3.StringUtils;
@@ -174,64 +172,51 @@ public class ApiConfig {
         }
         System.out.println("API URL :" + configUrl);
         String configKey = TempKey;
-        OkGo.<String>get(configUrl)
-                .headers("User-Agent", userAgent)
-                .headers("Accept", requestAccept)
-                .execute(new AbsCallback<String>() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
+        new Thread(() -> {
+            try {
+                okhttp3.Response response = com.github.catvod.net.OkHttp.newCall(configUrl, okhttp3.Headers.of("User-Agent", userAgent, "Accept", requestAccept)).execute();
+                String raw = response.body() != null ? response.body().string() : "";
+                String result = FindResult(raw, configKey);
+                if (apiUrl.startsWith("clan")) {
+                    result = clanContentFix(clanToAddress(apiUrl), result);
+                }
+                result = fixContentPath(apiUrl, result);
+                final String json = result;
+                App.post(() -> {
+                    try {
+                        parseJson(apiUrl, json);
                         try {
-                            String json = response.body();
-                            parseJson(apiUrl, json);
-                            try {
-                                File cacheDir = cache.getParentFile();
-                                if (!cacheDir.exists())
-                                    cacheDir.mkdirs();
-                                if (cache.exists())
-                                    cache.delete();
-                                FileOutputStream fos = new FileOutputStream(cache);
-                                fos.write(json.getBytes("UTF-8"));
-                                fos.flush();
-                                fos.close();
-                            } catch (Throwable th) {
-                                th.printStackTrace();
-                            }
-                            callback.success();
+                            File cacheDir = cache.getParentFile();
+                            if (!cacheDir.exists()) cacheDir.mkdirs();
+                            if (cache.exists()) cache.delete();
+                            FileOutputStream fos = new FileOutputStream(cache);
+                            fos.write(json.getBytes("UTF-8"));
+                            fos.flush();
+                            fos.close();
                         } catch (Throwable th) {
                             th.printStackTrace();
-                            callback.error("解析配置失败");
                         }
-                    }
-
-                    @Override
-                    public void onError(Response<String> response) {
-                        super.onError(response);
-                        if (cache.exists()) {
-                            try {
-                                parseJson(apiUrl, cache);
-                                callback.success();
-                                return;
-                            } catch (Throwable th) {
-                                th.printStackTrace();
-                            }
-                        }
-                        callback.error("拉取配置失败\n" + (response.getException() != null ? response.getException().getMessage() : ""));
-                    }
-
-                    public String convertResponse(okhttp3.Response response) throws Throwable {
-                        String result = "";
-                        if (response.body() == null) {
-                            result = "";
-                        } else {
-                            result = FindResult(response.body().string(), configKey);
-                        }
-                        if (apiUrl.startsWith("clan")) {
-                            result = clanContentFix(clanToAddress(apiUrl), result);
-                        }
-                        result = fixContentPath(apiUrl, result);
-                        return result;
+                        callback.success();
+                    } catch (Throwable th) {
+                        th.printStackTrace();
+                        callback.error("解析配置失败");
                     }
                 });
+            } catch (Exception e) {
+                App.post(() -> {
+                    if (cache.exists()) {
+                        try {
+                            parseJson(apiUrl, cache);
+                            callback.success();
+                            return;
+                        } catch (Throwable th) {
+                            th.printStackTrace();
+                        }
+                    }
+                    callback.error("拉取配置失败\n" + e.getMessage());
+                });
+            }
+        }).start();
     }
 
     public void loadJar(boolean useCache, String spider, LoadConfigCallback callback) {
@@ -259,76 +244,59 @@ public class ApiConfig {
 
         boolean isJarInImg = jarUrl.startsWith("img+");
         jarUrl = jarUrl.replace("img+", "");
-        OkGo.<File>get(jarUrl)
-                .headers("User-Agent", userAgent)
-                .headers("Accept", requestAccept)
-                .execute(new AbsCallback<File>() {
-
-                    @Override
-                    public File convertResponse(okhttp3.Response response){
-                        File cacheDir = cache.getParentFile();
-                        assert cacheDir != null;
-                        if (!cacheDir.exists()) cacheDir.mkdirs();
-                        if (cache.exists()) cache.delete();
-                        // 3. 使用 try-with-resources 确保流关闭
-                        assert response.body() != null;
-                        try (FileOutputStream fos = new FileOutputStream(cache)) {
-                            if (isJarInImg) {
-                                String respData = response.body().string();
-                                LOG.i("echo---jar Response: " + respData);
-                                byte[] imgJar = getImgJar(respData);
-                                if (imgJar == null || imgJar.length == 0) {
-                                    LOG.e("echo---Generated JAR data is empty");
-                                    callback.error("JAR data is empty");
-                                }
-                                fos.write(imgJar);
-                            } else {
-                                // 使用流式传输避免内存溢出
-                                InputStream inputStream = response.body().byteStream();
-                                byte[] buffer = new byte[4096];
-                                int bytesRead;
-                                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                                    fos.write(buffer, 0, bytesRead);
-                                }
-                            }
-                            fos.flush();
-                        } catch (IOException e) {
-                            return null;
+        new Thread(() -> {
+            try {
+                okhttp3.Response response = com.github.catvod.net.OkHttp.newCall(jarUrl, okhttp3.Headers.of("User-Agent", userAgent, "Accept", requestAccept)).execute();
+                File cacheDir = cache.getParentFile();
+                assert cacheDir != null;
+                if (!cacheDir.exists()) cacheDir.mkdirs();
+                if (cache.exists()) cache.delete();
+                assert response.body() != null;
+                try (FileOutputStream fos = new FileOutputStream(cache)) {
+                    if (isJarInImg) {
+                        String respData = response.body().string();
+                        LOG.i("echo---jar Response: " + respData);
+                        byte[] imgJar = getImgJar(respData);
+                        if (imgJar == null || imgJar.length == 0) {
+                            LOG.e("echo---Generated JAR data is empty");
+                            App.post(() -> callback.error("JAR data is empty"));
+                            return;
                         }
-                        return cache;
+                        fos.write(imgJar);
+                    } else {
+                        InputStream inputStream = response.body().byteStream();
+                        byte[] buffer = new byte[4096];
+                        int bytesRead;
+                        while ((bytesRead = inputStream.read(buffer)) != -1) {
+                            fos.write(buffer, 0, bytesRead);
+                        }
                     }
-
-                    @Override
-                    public void onSuccess(Response<File> response) {
-                        File file = response.body();
-                        if (file != null && file.exists()) {
-                            try {
-                                if (jarLoader.load(file.getAbsolutePath())) {
-                                    callback.success();
-                                } else {
-                                    LOG.e("echo---jar Loader returned false");
-                                    callback.error("从网络上加载jar写入缓存后加载失败");
-                                }
-                            } catch (Exception e) {
-                                LOG.e("echo---jar Loader threw exception: " + e.getMessage());
-                                callback.error("JAR加载异常: " + e.getMessage());
-                            }
+                    fos.flush();
+                } catch (IOException e) {
+                    App.post(() -> callback.error("JAR下载写入失败: " + e.getMessage()));
+                    return;
+                }
+                App.post(() -> {
+                    try {
+                        if (jarLoader.load(cache.getAbsolutePath())) {
+                            callback.success();
                         } else {
-                            LOG.e("echo---jar File not found");
-                            callback.error("从网络上加载jar地址字节数据为空");
+                            LOG.e("echo---jar Loader returned false");
+                            callback.error("从网络上加载jar写入缓存后加载失败");
                         }
-                    }
-
-                    @Override
-                    public void onError(Response<File> response) {
-                        Throwable ex = response.getException();
-                        if (ex != null) {
-                            LOG.i("echo---jar Request failed: " + ex.getMessage());
-                        }
-                        if(cache.exists())jarLoader.load(cache.getAbsolutePath());
-                        callback.error(ex != null ? "从网络上加载jar失败：" + ex.getMessage() : "未知网络错误");
+                    } catch (Exception e) {
+                        LOG.e("echo---jar Loader threw exception: " + e.getMessage());
+                        callback.error("JAR加载异常: " + e.getMessage());
                     }
                 });
+            } catch (Exception e) {
+                App.post(() -> {
+                    LOG.i("echo---jar Request failed: " + e.getMessage());
+                    if(cache.exists()) jarLoader.load(cache.getAbsolutePath());
+                    callback.error("从网络上加载jar失败：" + e.getMessage());
+                });
+            }
+        }).start();
     }
 
     private void parseJson(String apiUrl, File f) throws Throwable {

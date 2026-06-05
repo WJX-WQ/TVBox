@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.tvbox.osc.R;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +21,7 @@ public class ButtonAdapter<T> extends ListAdapter<T, ButtonAdapter.SelectViewHol
 
     static class SelectViewHolder extends RecyclerView.ViewHolder {
 
-        public SelectViewHolder(@NonNull @NotNull View itemView) {
+        public SelectViewHolder(@NonNull View itemView) {
             super(itemView);
         }
     }
@@ -37,12 +36,12 @@ public class ButtonAdapter<T> extends ListAdapter<T, ButtonAdapter.SelectViewHol
     public static DiffUtil.ItemCallback<String> stringDiff = new DiffUtil.ItemCallback<String>() {
 
         @Override
-        public boolean areItemsTheSame(@NonNull @NotNull String oldItem, @NonNull @NotNull String newItem) {
+        public boolean areItemsTheSame(@NonNull String oldItem, @NonNull String newItem) {
             return oldItem.equals(newItem);
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull @NotNull String oldItem, @NonNull @NotNull String newItem) {
+        public boolean areContentsTheSame(@NonNull String oldItem, @NonNull String newItem) {
             return oldItem.equals(newItem);
         }
     };
@@ -75,12 +74,12 @@ public class ButtonAdapter<T> extends ListAdapter<T, ButtonAdapter.SelectViewHol
 
 
     @Override
-    public SelectViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
+    public SelectViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new SelectViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_button, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull @NotNull SelectViewHolder holder, @SuppressLint("RecyclerView") int position) {
+    public void onBindViewHolder(@NonNull SelectViewHolder holder, @SuppressLint("RecyclerView") int position) {
         T value = data.get(position);
         String name = dialogInterface.getDisplay(value);
         TextView item = holder.itemView.findViewById(R.id.tvName);

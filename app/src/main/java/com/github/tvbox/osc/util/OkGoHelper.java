@@ -7,10 +7,7 @@ import static okhttp3.ConnectionSpec.RESTRICTED_TLS;
 import com.github.catvod.net.SSLCompat;
 import com.github.tvbox.osc.base.App;
 
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.https.HttpsUtils;
-import com.lzy.okgo.interceptor.HttpLoggingInterceptor;
-import com.lzy.okgo.model.HttpHeaders;
+
 import com.orhanobut.hawk.Hawk;
 
 import java.io.File;
@@ -32,7 +29,6 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.dnsoverhttps.DnsOverHttps;
 import okhttp3.internal.Util;
-import okhttp3.internal.Version;
 import xyz.doikki.videoplayer.exo.ExoMediaSourceHelper;
 
 public class OkGoHelper {
@@ -56,16 +52,6 @@ public class OkGoHelper {
 
     static void initExoOkHttpClient() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor("OkExoPlayer");
-
-        if (Hawk.get(HawkConfig.DEBUG_OPEN, false)) {
-            loggingInterceptor.setPrintLevel(HttpLoggingInterceptor.Level.BODY);
-            loggingInterceptor.setColorLevel(Level.INFO);
-        } else {
-            loggingInterceptor.setPrintLevel(HttpLoggingInterceptor.Level.NONE);
-            loggingInterceptor.setColorLevel(Level.OFF);
-        }
-        builder.addInterceptor(loggingInterceptor);
         builder.connectionSpecs(getConnectionSpec());
         builder.retryOnConnectionFailure(true);
         builder.followRedirects(true);
@@ -125,15 +111,6 @@ public class OkGoHelper {
         dnsHttpsList.add("AdGuard");
         dnsHttpsList.add("Quad9");
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor("OkExoPlayer");
-        if (Hawk.get(HawkConfig.DEBUG_OPEN, false)) {
-            loggingInterceptor.setPrintLevel(HttpLoggingInterceptor.Level.BODY);
-            loggingInterceptor.setColorLevel(Level.INFO);
-        } else {
-            loggingInterceptor.setPrintLevel(HttpLoggingInterceptor.Level.NONE);
-            loggingInterceptor.setColorLevel(Level.OFF);
-        }
-        builder.addInterceptor(loggingInterceptor);
         try {
             setOkHttpSsl(builder);
         } catch (Throwable th) {
@@ -161,19 +138,8 @@ public class OkGoHelper {
         initDnsOverHttps();
 
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor("OkGo");
-
-        if (Hawk.get(HawkConfig.DEBUG_OPEN, false)) {
-            loggingInterceptor.setPrintLevel(HttpLoggingInterceptor.Level.BODY);
-            loggingInterceptor.setColorLevel(Level.INFO);
-        } else {
-            loggingInterceptor.setPrintLevel(HttpLoggingInterceptor.Level.NONE);
-            loggingInterceptor.setColorLevel(Level.OFF);
-        }
-
-        //builder.retryOnConnectionFailure(false);
         builder.connectionSpecs(getConnectionSpec());
-        builder = builder.addInterceptor(loggingInterceptor)
+        builder
                 .readTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS)
                 .writeTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS)
                 .connectTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS)
@@ -184,10 +150,7 @@ public class OkGoHelper {
             th.printStackTrace();
         }
 
-        HttpHeaders.setUserAgent(Version.userAgent());
         OkHttpClient okHttpClient = builder.build();
-        OkGo.getInstance().setOkHttpClient(okHttpClient);
-
         defaultClient = okHttpClient;
         builder.followRedirects(false);
         builder.followSslRedirects(false);
@@ -200,7 +163,7 @@ public class OkGoHelper {
         try {
             final SSLSocketFactory sslSocketFactory = new SSLCompat();
             builder.sslSocketFactory(sslSocketFactory, SSLCompat.TM);
-            builder.hostnameVerifier(HttpsUtils.UnSafeHostnameVerifier);
+            builder.hostnameVerifier(SSLCompat.VERIFIER);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

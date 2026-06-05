@@ -13,7 +13,7 @@ import com.github.tvbox.osc.subtitle.model.TimedTextObject;
 import com.github.tvbox.osc.subtitle.runtime.AppTaskExecutor;
 import com.github.tvbox.osc.util.FileUtils;
 import com.github.tvbox.osc.util.UnicodeReader;
-import com.lzy.okgo.OkGo;
+import com.github.catvod.net.OkHttp;
 
 import org.apache.commons.io.input.ReaderInputStream;
 import org.mozilla.universalchardet.UniversalDetector;
@@ -142,10 +142,7 @@ public class SubtitleLoader {
             referer = "https://secure.assrt.net/";
         }
         String ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.54 Safari/537.36";
-        Response response = OkGo.<String>get(remoteSubtitlePath.split("#")[0])
-                .headers("Referer", referer)
-                .headers("User-Agent", ua)
-                .execute();
+        okhttp3.Response response = OkHttp.newCall(remoteSubtitlePath.split("#")[0], okhttp3.Headers.of("Referer", referer, "User-Agent", ua)).execute();
         byte[] bytes = response.body().bytes();
         UniversalDetector detector = new UniversalDetector(null);
         detector.handleData(bytes, 0, bytes.length);

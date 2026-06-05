@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 
 import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.util.DefaultConfig;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * 描述
@@ -21,7 +20,7 @@ public class ResetDialog extends BaseDialog {
     private final TextView tvNo;
 
     @SuppressLint("MissingInflatedId")
-    public ResetDialog(@NonNull @NotNull Context context) {
+    public ResetDialog(@NonNull Context context) {
         super(context);
         setContentView(R.layout.dialog_reset);
         setCanceledOnTouchOutside(true);

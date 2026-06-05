@@ -23,7 +23,6 @@ import com.hjq.permissions.OnPermissionCallback;
 import com.hjq.permissions.XXPermissions;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -37,7 +36,7 @@ import java.util.List;
 
 public class BackupDialog extends BaseDialog {
 
-    public BackupDialog(@NonNull @NotNull Context context) {
+    public BackupDialog(@NonNull Context context) {
         super(context);
         setContentView(R.layout.dialog_backup);
         TvRecyclerView tvRecyclerView = findViewById(R.id.list);

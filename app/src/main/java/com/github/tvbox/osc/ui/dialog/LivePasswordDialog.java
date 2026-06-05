@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 
 import com.github.tvbox.osc.R;
 
-import org.jetbrains.annotations.NotNull;
 
 
 
@@ -25,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 public class LivePasswordDialog extends BaseDialog {
     private EditText inputPassword;
 
-    public LivePasswordDialog(@NonNull @NotNull Context context) {
+    public LivePasswordDialog(@NonNull Context context) {
         super(context);
         setOwnerActivity((Activity) context);
         setContentView(R.layout.dialog_live_password);

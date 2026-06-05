@@ -56,10 +56,7 @@ import com.github.tvbox.osc.util.HawkUtils;
 import com.github.tvbox.osc.util.JavaUtil;
 import com.github.tvbox.osc.util.live.TxtSubscribe;
 import com.google.gson.JsonArray;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.AbsCallback;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+
 import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
@@ -844,9 +841,10 @@ public class LivePlayActivity extends BaseActivity {
         } else {
             epgUrl = epgStringAddress + "?ch=" + URLEncoder.encode(epgTagName) + "&date=" + timeFormat.format(date);
         }
-        OkGo.<String>get(epgUrl).execute(new StringCallback() {
-            public void onSuccess(Response<String> response) {
-                String paramString = response.body();
+        new Thread(() -> {
+            try {
+                okhttp3.Response response = com.github.catvod.net.OkHttp.newCall(epgUrl).execute();
+                String paramString = response.body().string();
                 ArrayList arrayList = new ArrayList();
 
                 try {
@@ -859,23 +857,24 @@ public class LivePlayActivity extends BaseActivity {
                                 arrayList.add(epgbcinfo);
                             }
                     }
-
                 } catch (JSONException jSONException) {
                     jSONException.printStackTrace();
                 }
-                showEpg(date, arrayList);
 
                 String savedEpgKey = channelName + "_" + epgDateAdapter.getItem(epgDateAdapter.getSelectedIndex()).getDatePresented();
-                if (!hsEpg.contains(savedEpgKey))
-                    hsEpg.put(savedEpgKey, arrayList);
-                showBottomEpg();
+                App.post(() -> {
+                    showEpg(date, arrayList);
+                    if (!hsEpg.contains(savedEpgKey))
+                        hsEpg.put(savedEpgKey, arrayList);
+                    showBottomEpg();
+                });
+            } catch (Exception e) {
+                App.post(() -> {
+                    showEpg(date, new ArrayList());
+                    showBottomEpg();
+                });
             }
-
-            public void onFailure(int i, String str) {
-                showEpg(date, new ArrayList());
-                showBottomEpg();
-            }
-        });
+        }).start();
     }
 
     private boolean replayChannel() {
@@ -1753,32 +1752,30 @@ public class LivePlayActivity extends BaseActivity {
             return;
         }
         showLoading();
-        OkGo.<String>get(url).execute(new AbsCallback<String>() {
+        showLoading();
+        new Thread(() -> {
+            try {
+                okhttp3.Response okResponse = com.github.catvod.net.OkHttp.newCall(url).execute();
+                String body = okResponse.body().string();
+                App.post(() -> {
+                    try {
+                        JsonArray livesArray;
+                        LinkedHashMap<String, LinkedHashMap<String, ArrayList<String>>> linkedHashMap = new LinkedHashMap<>();
+                        TxtSubscribe.parse(linkedHashMap, body);
+                        livesArray = TxtSubscribe.live2JsonArray(linkedHashMap);
 
-            @Override
-            public String convertResponse(okhttp3.Response response) throws Throwable {
-                return response.body().string();
-            }
+                        ApiConfig.get().loadLives(livesArray);
+                        List<LiveChannelGroup> list = ApiConfig.get().getChannelGroupList();
+                        if (list.isEmpty()) {
+                            Toast.makeText(App.getInstance(), getString(R.string.act_live_play_empty_channel), Toast.LENGTH_SHORT).show();
+                            finish();
+                            return;
+                        }
+                        liveChannelGroupList.clear();
+                        liveChannelGroupList.addAll(list);
 
-            @Override
-            public void onSuccess(Response<String> response) {
-                JsonArray livesArray;
-                LinkedHashMap<String, LinkedHashMap<String, ArrayList<String>>> linkedHashMap = new LinkedHashMap<>();
-                TxtSubscribe.parse(linkedHashMap, response.body());
-                livesArray = TxtSubscribe.live2JsonArray(linkedHashMap);
-
-                ApiConfig.get().loadLives(livesArray);
-                List<LiveChannelGroup> list = ApiConfig.get().getChannelGroupList();
-                if (list.isEmpty()) {
-                    Toast.makeText(App.getInstance(), getString(R.string.act_live_play_empty_channel), Toast.LENGTH_SHORT).show();
-                    finish();
-                    return;
-                }
-                liveChannelGroupList.clear();
-                liveChannelGroupList.addAll(list);
-
-                mHandler.post(new Runnable() {
-                    @Override
+                        mHandler.post(new Runnable() {
+                            @Override
                     public void run() {
                         LivePlayActivity.this.showSuccess();
                         initLiveState();

@@ -91,35 +91,26 @@ import com.github.tvbox.osc.util.parser.SuperParse;
 import com.github.tvbox.osc.util.StringUtils;
 import com.github.tvbox.osc.util.SubtitleHelper;
 import com.github.tvbox.osc.util.VideoParseRuler;
-import com.github.tvbox.osc.util.XWalkUtils;
+
 import com.github.tvbox.osc.util.thunder.Jianpian;
 import com.github.tvbox.osc.util.thunder.Thunder;
 import com.github.tvbox.osc.viewmodel.SourceViewModel;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.AbsCallback;
-import com.lzy.okgo.model.HttpHeaders;
-import com.lzy.okgo.model.Response;
+import com.github.catvod.net.OkHttp;
+import com.github.tvbox.osc.base.App;
 import com.obsez.android.lib.filechooser.ChooserDialog;
 import com.orhanobut.hawk.Hawk;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xwalk.core.XWalkJavascriptResult;
-import org.xwalk.core.XWalkResourceClient;
-import org.xwalk.core.XWalkSettings;
-import org.xwalk.core.XWalkUIClient;
-import org.xwalk.core.XWalkView;
-import org.xwalk.core.XWalkWebResourceRequest;
-import org.xwalk.core.XWalkWebResourceResponse;
 
-import java.io.ByteArrayInputStream;
+
+
 import java.io.File;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -546,12 +537,12 @@ public class PlayActivity extends BaseActivity {
             }
         }, new DiffUtil.ItemCallback<TrackInfoBean>() {
             @Override
-            public boolean areItemsTheSame(@NonNull @NotNull TrackInfoBean oldItem, @NonNull @NotNull TrackInfoBean newItem) {
+            public boolean areItemsTheSame(@NonNull TrackInfoBean oldItem, @NonNull TrackInfoBean newItem) {
                 return oldItem.trackId == newItem.trackId;
             }
 
             @Override
-            public boolean areContentsTheSame(@NonNull @NotNull TrackInfoBean oldItem, @NonNull @NotNull TrackInfoBean newItem) {
+            public boolean areContentsTheSame(@NonNull TrackInfoBean oldItem, @NonNull TrackInfoBean newItem) {
                 return oldItem.trackId == newItem.trackId;
             }
         }, bean, trackInfo.getSubtitleSelected(false));
@@ -616,12 +607,12 @@ public class PlayActivity extends BaseActivity {
             }
         }, new DiffUtil.ItemCallback<TrackInfoBean>() {
             @Override
-            public boolean areItemsTheSame(@NonNull @NotNull TrackInfoBean oldItem, @NonNull @NotNull TrackInfoBean newItem) {
+            public boolean areItemsTheSame(@NonNull TrackInfoBean oldItem, @NonNull TrackInfoBean newItem) {
                 return oldItem.trackId == newItem.trackId;
             }
 
             @Override
-            public boolean areContentsTheSame(@NonNull @NotNull TrackInfoBean oldItem, @NonNull @NotNull TrackInfoBean newItem) {
+            public boolean areContentsTheSame(@NonNull TrackInfoBean oldItem, @NonNull TrackInfoBean newItem) {
                 return oldItem.trackId == newItem.trackId;
             }
         }, bean, trackInfo.getAudioSelected(false));
@@ -704,8 +695,6 @@ public class PlayActivity extends BaseActivity {
             startPlayUrl(url, headers);
             return;
         }
-        OkGo.getInstance().cancelTag("m3u8-1");
-        OkGo.getInstance().cancelTag("m3u8-2");
         //remove ads in m3u8
         HttpHeaders hheaders = new HttpHeaders();
         if (headers != null) {
@@ -713,13 +702,10 @@ public class PlayActivity extends BaseActivity {
                 hheaders.put(s.getKey(), s.getValue());
             }
         }
-        OkGo.<String>get(url)
-                .tag("m3u8-1")
-                .headers(hheaders)
-                .execute(new AbsCallback<String>() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String content = response.body();
+        new Thread(() -> {
+            try {
+                String content = OkHttp.string(url);
+                App.post(() -> {
                         if (!content.startsWith("#EXTM3U")) {
                             startPlayUrl(url, headers);
                             return;
@@ -766,48 +752,23 @@ public class PlayActivity extends BaseActivity {
                             return;
                         }
                         final String finalforwardurl = forwardurl;
-                        OkGo.<String>get(forwardurl)
-                                .tag("m3u8-2")
-                                .headers(hheaders)
-                                .execute(new AbsCallback<String>() {
-                                    @Override
-                                    public void onSuccess(Response<String> response) {
-                                        String content = response.body();
-                                        int ilast = finalforwardurl.lastIndexOf('/');
-                                        RemoteServer.m3u8Content = M3U8.purify(finalforwardurl.substring(0, ilast + 1), content);
-
-                                        if (RemoteServer.m3u8Content == null)
-                                            startPlayUrl(finalforwardurl, headers);
-                                        else {
-                                            startPlayUrl("http://127.0.0.1:" + RemoteServer.serverPort + "/m3u8", headers);
-                                            //Toast.makeText(getContext(), "已移除视频广告", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-
-                                    @Override
-                                    public String convertResponse(okhttp3.Response response) throws Throwable {
-                                        return response.body().string();
-                                    }
-
-                                    @Override
-                                    public void onError(Response<String> response) {
-                                        super.onError(response);
-                                        startPlayUrl(url, headers);
-                                    }
+                        new Thread(() -> {
+                            try {
+                                String m3u8Content2 = OkHttp.string(finalforwardurl);
+                                App.post(() -> {
+                                    int ilast = finalforwardurl.lastIndexOf('/');
+                                    RemoteServer.m3u8Content = M3U8.purify(finalforwardurl.substring(0, ilast + 1), m3u8Content2);
+                                    startPlayUrl(RemoteServer.m3u8Content == null ? finalforwardurl : "http://127.0.0.1:" + RemoteServer.serverPort + "/m3u8", headers);
                                 });
-                    }
-
-                    @Override
-                    public String convertResponse(okhttp3.Response response) throws Throwable {
-                        return response.body().string();
-                    }
-
-                    @Override
-                    public void onError(Response<String> response) {
-                        super.onError(response);
-                        startPlayUrl(url, headers);
-                    }
+                            } catch (Exception e) {
+                                App.post(() -> startPlayUrl(url, headers));
+                            }
+                        }).start();
                 });
+            } catch (Exception e) {
+                App.post(() -> startPlayUrl(url, headers));
+            }
+        }).start();
     }
 
     void startPlayUrl(String url, HashMap<String, String> headers) {
@@ -1541,7 +1502,6 @@ public class PlayActivity extends BaseActivity {
     void stopParse() {
         mHandler.removeMessages(100);
         stopLoadWebView(false);
-        OkGo.getInstance().cancelTag("json_jx");
         if (parseThreadPool != null) {
             try {
                 parseThreadPool.shutdown();
@@ -1611,55 +1571,34 @@ public class PlayActivity extends BaseActivity {
             } catch (Throwable e) {
                 e.printStackTrace();
             }
-            OkGo.<String>get(pb.getUrl() + encodeUrl(webUrl))
-                    .tag("json_jx")
-                    .headers(reqHeaders)
-                    .execute(new AbsCallback<String>() {
-                        @Override
-                        public String convertResponse(okhttp3.Response response) throws Throwable {
-                            if (response.body() != null) {
-                                return response.body().string();
-                            } else {
-                                throw new IllegalStateException("网络请求错误");
-                            }
-                        }
-
-                        @Override
-                        public void onSuccess(Response<String> response) {
-                            String json = response.body();
-                            try {
-                                JSONObject rs = jsonParse(webUrl, json);
-                                HashMap<String, String> headers = null;
-                                if (rs.has("header")) {
-                                    try {
-                                        JSONObject hds = rs.getJSONObject("header");
-                                        Iterator<String> keys = hds.keys();
-                                        while (keys.hasNext()) {
-                                            String key = keys.next();
-                                            if (headers == null) {
-                                                headers = new HashMap<>();
-                                            }
-                                            headers.put(key, hds.getString(key));
-                                        }
-                                    } catch (Throwable th) {
-
+            new Thread(() -> {
+                try {
+                    String json = OkHttp.string(pb.getUrl() + encodeUrl(webUrl));
+                    App.post(() -> {
+                        try {
+                            JSONObject rs = jsonParse(webUrl, json);
+                            HashMap<String, String> headers = null;
+                            if (rs.has("header")) {
+                                try {
+                                    JSONObject hds = rs.getJSONObject("header");
+                                    Iterator<String> keys = hds.keys();
+                                    while (keys.hasNext()) {
+                                        String key = keys.next();
+                                        if (headers == null) headers = new HashMap<>();
+                                        headers.put(key, hds.getString(key));
                                     }
-                                }
-                                playUrl(rs.getString("url"), headers);
-                            } catch (Throwable e) {
-                                e.printStackTrace();
-                                errorWithRetry("解析错误", false);
-//                                setTip("解析错误", false, true);
+                                } catch (Throwable ignored) {}
                             }
-                        }
-
-                        @Override
-                        public void onError(Response<String> response) {
-                            super.onError(response);
+                            playUrl(rs.getString("url"), headers);
+                        } catch (Throwable e) {
+                            e.printStackTrace();
                             errorWithRetry("解析错误", false);
-//                            setTip("解析错误", false, true);
                         }
                     });
+                } catch (Exception e) {
+                    App.post(() -> errorWithRetry("解析错误", false));
+                }
+            }).start();
         } else if (pb.getType() == 2) { // json 扩展
             setTip("正在解析播放地址", true, false);
             parseThreadPool = Executors.newSingleThreadExecutor();
@@ -1827,8 +1766,6 @@ public class PlayActivity extends BaseActivity {
     }
 
     // webview
-    private XWalkView mXwalkWebView;
-    private XWalkWebClient mX5WebClient;
     private WebView mSysWebView;
     private SysWebClient mSysWebClient;
     private final Map<String, Boolean> loadedUrls = new HashMap<>();
@@ -1837,65 +1774,17 @@ public class PlayActivity extends BaseActivity {
     private final AtomicInteger loadFoundCount = new AtomicInteger(0);
 
     void loadWebView(String url) {
-        if (mSysWebView == null && mXwalkWebView == null) {
-            boolean useSystemWebView = Hawk.get(HawkConfig.PARSE_WEBVIEW, true);
-            if (!useSystemWebView) {
-                XWalkUtils.tryUseXWalk(mContext, new XWalkUtils.XWalkState() {
-                    @Override
-                    public void success() {
-                        initWebView(!sourceBean.getClickSelector().isEmpty());
-                        loadUrl(url);
-                    }
-
-                    @Override
-                    public void fail() {
-                        Toast.makeText(mContext, "XWalkView不兼容，已替换为系统自带WebView", Toast.LENGTH_SHORT).show();
-                        initWebView(true);
-                        loadUrl(url);
-                    }
-
-                    @Override
-                    public void ignore() {
-                        Toast.makeText(mContext, "XWalkView运行组件未下载，已替换为系统自带WebView", Toast.LENGTH_SHORT).show();
-                        initWebView(true);
-                        loadUrl(url);
-                    }
-                });
-            } else {
-                initWebView(true);
-                loadUrl(url);
-            }
-        } else {
-            loadUrl(url);
-        }
-    }
-
-    void initWebView(boolean useSystemWebView) {
-        if (useSystemWebView) {
+        if (mSysWebView == null) {
             mSysWebView = new MyWebView(mContext);
             configWebViewSys(mSysWebView);
-        } else {
-            mXwalkWebView = new MyXWalkView(mContext);
-            configWebViewX5(mXwalkWebView);
         }
+        loadUrl(url);
     }
 
     void loadUrl(String url) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (mXwalkWebView != null) {
-                    mXwalkWebView.stopLoading();
-                    if (webUserAgent != null) {
-                        mXwalkWebView.getSettings().setUserAgentString(webUserAgent);
-                    }
-                    //mXwalkWebView.clearCache(true);
-                    if (webHeaderMap != null) {
-                        mXwalkWebView.loadUrl(url, webHeaderMap);
-                    } else {
-                        mXwalkWebView.loadUrl(url);
-                    }
-                }
                 if (mSysWebView != null) {
                     mSysWebView.stopLoading();
                     if (webUserAgent != null) {
@@ -1917,16 +1806,7 @@ public class PlayActivity extends BaseActivity {
             @Override
             public void run() {
 
-                if (mXwalkWebView != null) {
-                    mXwalkWebView.stopLoading();
-                    mXwalkWebView.loadUrl("about:blank");
-                    if (destroy) {
-//                        mXwalkWebView.clearCache(true);
-                        mXwalkWebView.removeAllViews();
-                        mXwalkWebView.onDestroy();
-                        mXwalkWebView = null;
-                    }
-                }
+
                 if (mSysWebView != null) {
                     mSysWebView.stopLoading();
                     mSysWebView.loadUrl("about:blank");
@@ -1975,23 +1855,7 @@ public class PlayActivity extends BaseActivity {
         }
     }
 
-    class MyXWalkView extends XWalkView {
-        public MyXWalkView(Context context) {
-            super(context);
-        }
 
-        @Override
-        public void setOverScrollMode(int mode) {
-            super.setOverScrollMode(mode);
-            if (mContext instanceof Activity)
-                AutoSize.autoConvertDensityOfCustomAdapt((Activity) mContext, PlayActivity.this);
-        }
-
-        @Override
-        public boolean dispatchKeyEvent(KeyEvent event) {
-            return false;
-        }
-    }
 
     @SuppressLint("SetJavaScriptEnabled")
     private void configWebViewSys(WebView webView) {
@@ -2092,7 +1956,7 @@ public class PlayActivity extends BaseActivity {
             super.onPageFinished(view,url);
             LOG.i("echo-onPageFinished url:" + url);
             if(!url.equals("about:blank")){
-                mController.evaluateScript(sourceBean,url,view,null);
+                mController.evaluateScript(sourceBean,url,view);
             }
             mHandler.sendEmptyMessage(200);
         }
@@ -2175,167 +2039,6 @@ public class PlayActivity extends BaseActivity {
         }
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
-    private void configWebViewX5(XWalkView webView) {
-        if (webView == null) {
-            return;
-        }
-        ViewGroup.LayoutParams layoutParams = Hawk.get(HawkConfig.DEBUG_OPEN, false)
-                ? new ViewGroup.LayoutParams(800, 400) :
-                new ViewGroup.LayoutParams(1, 1);
-        webView.setFocusable(false);
-        webView.setFocusableInTouchMode(false);
-        webView.clearFocus();
-        webView.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
-        addContentView(webView, layoutParams);
-        /* 添加webView配置 */
-        final XWalkSettings settings = webView.getSettings();
-        settings.setAllowContentAccess(true);
-        settings.setAllowFileAccess(true);
-        settings.setAllowUniversalAccessFromFileURLs(true);
-        settings.setAllowFileAccessFromFileURLs(true);
-        settings.setDatabaseEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setJavaScriptEnabled(true);
 
-        settings.setBlockNetworkImage(!Hawk.get(HawkConfig.DEBUG_OPEN, false));
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            settings.setMediaPlaybackRequiresUserGesture(false);
-        }
-        settings.setUseWideViewPort(true);
-        settings.setDomStorageEnabled(true);
-        settings.setJavaScriptCanOpenWindowsAutomatically(true);
-        settings.setSupportMultipleWindows(false);
-        settings.setLoadWithOverviewMode(true);
-        settings.setBuiltInZoomControls(true);
-        settings.setSupportZoom(false);
-//        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-        // settings.setUserAgentString(ANDROID_UA);
-
-        webView.setBackgroundColor(Color.BLACK);
-        webView.setUIClient(new XWalkUIClient(webView) {
-            @Override
-            public boolean onConsoleMessage(XWalkView view, String message, int lineNumber, String sourceId, ConsoleMessageType messageType) {
-                return false;
-            }
-
-            @Override
-            public boolean onJsAlert(XWalkView view, String url, String message, XWalkJavascriptResult result) {
-                return true;
-            }
-
-            @Override
-            public boolean onJsConfirm(XWalkView view, String url, String message, XWalkJavascriptResult result) {
-                return true;
-            }
-
-            @Override
-            public boolean onJsPrompt(XWalkView view, String url, String message, String defaultValue, XWalkJavascriptResult result) {
-                return true;
-            }
-        });
-        mX5WebClient = new XWalkWebClient(webView);
-        webView.setResourceClient(mX5WebClient);
-    }
-
-    private class XWalkWebClient extends XWalkResourceClient {
-        public XWalkWebClient(XWalkView view) {
-            super(view);
-        }
-
-        @Override
-        public void onDocumentLoadedInFrame(XWalkView view, long frameId) {
-            super.onDocumentLoadedInFrame(view, frameId);
-        }
-
-        @Override
-        public void onLoadStarted(XWalkView view, String url) {
-            super.onLoadStarted(view, url);
-        }
-
-        @Override
-        public void onLoadFinished(XWalkView view, String url) {
-            super.onLoadFinished(view, url);
-            LOG.i("echo-onPageFinished url:" + url);
-            if(!url.equals("about:blank")){
-                mController.evaluateScript(sourceBean,url,null,view);
-            }
-        }
-
-        @Override
-        public void onProgressChanged(XWalkView view, int progressInPercent) {
-            super.onProgressChanged(view, progressInPercent);
-        }
-
-        @Override
-        public XWalkWebResourceResponse shouldInterceptLoadRequest(XWalkView view, XWalkWebResourceRequest request) {
-            String url = request.getUrl().toString();
-            LOG.i("shouldInterceptLoadRequest url:" + url);
-            // suppress favicon requests as we don't display them anywhere
-            if (url.endsWith("/favicon.ico")) {
-                if (url.startsWith("http://127.0.0.1")) {
-                    return createXWalkWebResourceResponse("image/x-icon", "UTF-8", null);
-                }
-                return null;
-            }
-
-            boolean isFilter = VideoParseRuler.isFilter(webUrl, url);
-            if (isFilter) {
-                LOG.i("shouldInterceptLoadRequest filter:" + url);
-                return null;
-            }
-
-            boolean ad;
-            if (!loadedUrls.containsKey(url)) {
-                ad = AdBlocker.isAd(url);
-                loadedUrls.put(url, ad);
-            } else {
-                ad = loadedUrls.get(url);
-            }
-            if (!ad) {
-                if (checkVideoFormat(url)) {
-                    HashMap<String, String> webHeaders = new HashMap<>();
-                    Map<String, String> hds = request.getRequestHeaders();
-                    if (hds != null && hds.keySet().size() > 0) {
-                        for (String k : hds.keySet()) {
-                            if (k.equalsIgnoreCase("user-agent")
-                                    || k.equalsIgnoreCase("referer")
-                                    || k.equalsIgnoreCase("origin")) {
-                                webHeaders.put(k, " " + hds.get(k));
-                            }
-                        }
-                    }
-                    loadFoundVideoUrls.add(url);
-                    loadFoundVideoUrlsHeader.put(url, webHeaders);
-                    LOG.i("loadFoundVideoUrl:" + url);
-                    if (loadFoundCount.incrementAndGet() == 1) {
-                        mHandler.removeMessages(100);
-                        url = loadFoundVideoUrls.poll();
-                        String cookie = CookieManager.getInstance().getCookie(url);
-                        if (!TextUtils.isEmpty(cookie))
-                            webHeaders.put("Cookie", " " + cookie);//携带cookie
-                        playUrl(url, webHeaders);
-                        SuperParse.stopJsonJx();
-                        stopLoadWebView(false);
-                    }
-                }
-            }
-            return ad || loadFoundCount.get() > 0 ?
-                    createXWalkWebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream("".getBytes())) :
-                    null;
-        }
-
-        @Override
-        public boolean shouldOverrideUrlLoading(XWalkView view, String s) {
-            return false;
-        }
-
-        @Override
-        public void onReceivedSslError(XWalkView view, ValueCallback<Boolean> callback, SslError error) {
-            callback.onReceiveValue(true);
-        }
-    }
 
 }

@@ -16,7 +16,6 @@ import com.github.tvbox.osc.util.HawkConfig;
 import com.orhanobut.hawk.Hawk;
 
 import org.greenrobot.eventbus.EventBus;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +26,7 @@ public class PushDialog extends BaseDialog {
     private EditText etPort;
     private TextView etCurrent;
 
-    public PushDialog(@NonNull @NotNull Context context) {
+    public PushDialog(@NonNull Context context) {
         super(context);
         setContentView(R.layout.dialog_push);
     }

@@ -18,7 +18,7 @@ import androidx.media3.ui.PlayerView;
 import androidx.media3.ui.SubtitleView;
 
 import com.github.tvbox.osc.player.EXOmPlayer;
-import com.lzy.okgo.utils.OkLogger;
+import android.util.Log;
 
 import xyz.doikki.videoplayer.player.AbstractPlayer;
 
@@ -114,7 +114,7 @@ public class PlayerViewRenderView extends PlayerView implements IRenderView {
                     break;
             }
         } catch (Throwable t) {
-            OkLogger.d("Throwable >>> " + Log.getStackTraceString(t));
+            Log.d("PlayerViewRenderView", "Throwable >>> " + Log.getStackTraceString(t));
         }
     }
 

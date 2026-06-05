@@ -10,10 +10,8 @@ import com.github.tvbox.osc.ui.dialog.UpdateDialog;
 import com.github.tvbox.osc.util.Github;
 import com.github.tvbox.osc.util.ToastHelper;
 import com.github.tvbox.osc.util.urlhttp.OkHttpUtil;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.FileCallback;
-import com.lzy.okgo.model.Progress;
-import com.lzy.okgo.model.Response;
+import com.github.catvod.net.OkHttp;
+import com.github.tvbox.osc.base.App;
 
 import org.json.JSONObject;
 
@@ -123,34 +121,36 @@ public class Updater {
         
         File apkFile = new File(downloadDir, "TVBox_update.apk");
         
-        OkGo.<File>get(apkUrl)
-                .tag("update")
-                .execute(new FileCallback(apkFile.getParent(), apkFile.getName()) {
-                    @Override
-                    public void onSuccess(Response<File> response) {
-                        if (updateDialog != null) {
-                            updateDialog.dismiss();
-                        }
-                        // 安装 APK
-                        installApk(response.body());
+        new Thread(() -> {
+            try {
+                okhttp3.Response response = OkHttp.newCall(apkUrl).execute();
+                long total = response.body().contentLength();
+                java.io.InputStream is = response.body().byteStream();
+                java.io.FileOutputStream fos = new java.io.FileOutputStream(apkFile);
+                byte[] buffer = new byte[8192];
+                long downloaded = 0;
+                int len;
+                while ((len = is.read(buffer)) != -1) {
+                    fos.write(buffer, 0, len);
+                    downloaded += len;
+                    if (updateDialog != null) {
+                        final int pct = (int) (downloaded * 100 / total);
+                        App.post(() -> updateDialog.setProgress(pct));
                     }
-                    
-                    @Override
-                    public void onError(Response<File> response) {
-                        if (updateDialog != null) {
-                            updateDialog.setDownloading(false);
-                        }
-                        ToastHelper.show("下载失败: " + response.getException().getMessage());
-                    }
-                    
-                    @Override
-                    public void downloadProgress(Progress progress) {
-                        if (updateDialog != null) {
-                            int percent = (int) (progress.fraction * 100);
-                            updateDialog.setProgress(percent);
-                        }
-                    }
+                }
+                fos.close();
+                is.close();
+                App.post(() -> {
+                    if (updateDialog != null) updateDialog.dismiss();
+                    installApk(apkFile);
                 });
+            } catch (Exception e) {
+                App.post(() -> {
+                    if (updateDialog != null) updateDialog.setDownloading(false);
+                    ToastHelper.show("下载失败: " + e.getMessage());
+                });
+            }
+        }).start();
     }
     
     /**
