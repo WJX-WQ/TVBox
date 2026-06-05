@@ -2,7 +2,7 @@ package com.github.tvbox.osc.viewmodel.drive;
 
 import com.github.tvbox.osc.bean.DriveFolderFile;
 import com.github.tvbox.osc.util.UA;
-import com.github.tvbox.osc.util.urlhttp.OkHttpUtil;
+import com.github.catvod.net.OkHttp;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -60,7 +60,7 @@ public class AlistDriveViewModel extends AbstractDriveViewModel {
                     String webLink = getUrl(config.get("url").getAsString());
                     try {
                         if (currentDrive.version == 0) {
-                            String result = OkHttpUtil.get(webLink + "/api/public/settings");
+                            String result = OkHttp.string(webLink + "/api/public/settings");
                             JSONObject opt = new JSONObject(result);
                             Object obj = new JSONTokener(opt.optString("data")).nextValue();
                             if (obj instanceof JSONObject) {

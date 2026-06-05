@@ -25,7 +25,7 @@ import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.util.MD5;
 import com.github.tvbox.osc.util.thunder.Thunder;
-import com.github.tvbox.osc.util.urlhttp.OkHttpUtil;
+import com.github.catvod.net.OkHttp;
 import com.github.tvbox.osc.util.FileUtils;
 import com.github.tvbox.osc.util.SpiderExecutor;
 import com.github.tvbox.osc.util.SpiderParser;
@@ -636,7 +636,7 @@ public class SourceViewModel extends ViewModel {
                     result = tryMinifyJson(result);
                     extendCache.putIfAbsent(key, result);
                 } else if (extend.startsWith("http")) {
-                    result = OkHttpUtil.string(extend, null);
+                    result = OkHttp.string(extend);
                     if (!result.isEmpty()) {
                         result = tryMinifyJson(result);
                         extendCache.putIfAbsent(key, result);

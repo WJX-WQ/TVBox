@@ -9,7 +9,7 @@ import com.github.tvbox.osc.BuildConfig;
 import com.github.tvbox.osc.ui.dialog.UpdateDialog;
 import com.github.tvbox.osc.util.Github;
 import com.github.tvbox.osc.util.ToastHelper;
-import com.github.tvbox.osc.util.urlhttp.OkHttpUtil;
+import com.github.catvod.net.OkHttp;
 import com.github.catvod.net.OkHttp;
 import com.github.tvbox.osc.base.App;
 
@@ -50,7 +50,7 @@ public class Updater {
         protected UpdateInfo doInBackground(Void... voids) {
             try {
                 String jsonUrl = Github.getJson();
-                String jsonContent = OkHttpUtil.string(jsonUrl, "update", null);
+                String jsonContent = OkHttp.string(jsonUrl);
                 
                 if (jsonContent == null || jsonContent.isEmpty()) {
                     return null;
